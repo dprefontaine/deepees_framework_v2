@@ -1,0 +1,16 @@
+EXPORTS
+    _ZN5music10get_activeEv @1
+    _ZN5music10load_musicENSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE @2
+    _ZN5music10set_activeEb @3
+    _ZN5music14get_element_IDEv @4
+    _ZN5music18compare_element_IDEi @5
+    _ZN5music4playEv @6
+    _ZN5music4wipeEv @7
+    _ZN5music9fade_playEi @8
+    _ZN5music9get_loopsEv @9
+    _ZN5music9set_loopsEi @10
+    _ZN5musicC1Eii @11
+    _ZN5musicC2Eii @12
+    _ZN5musicD1Ev @13
+    _ZN5musicD2Ev @14
+    _get_output_format @15

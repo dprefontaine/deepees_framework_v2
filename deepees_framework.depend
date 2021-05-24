@@ -1,0 +1,1253 @@
+# depslib dependency file v1.0
+1589238585 source:c:\deepees_framework_v2\deepees_framework.cpp
+	"deepees_framework.h"
+
+1589312442 c:\deepees_framework_v2\deepees_framework.h
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_ttf.h>
+	<SDL_mixer.h>
+	<iostream>
+	<vector>
+	<random>
+	<functional>
+	<queue>
+	<string>
+	<timer.h>
+	<alarm.h>
+	<animation_player.h>
+	<loop_procedure.h>
+	<key_procedure.h>
+	<room_procedure.h>
+	<camera.h>
+	<button.h>
+	<file_reader.h>
+	<math_set.h>
+	<window.h>
+	<visual_media.h>
+	<sound.h>
+	<music.h>
+	<mixer_set.h>
+	<mixer_bin.h>
+	<media_set.h>
+	<media_bin.h>
+	<room.h>
+	<panel_interface.h>
+	<room_control.h>
+	<main_controller.h>
+
+1558292620 c:\deepees_framework_v2\\deepees_events\alarm.h
+
+1589224306 c:\deepees_framework_v2\\deepees_events\animation_player.h
+	"alarm.h"
+
+1589224350 c:\deepees_framework_v2\\deepees_events\timer.h
+	<SDL.h>
+
+1558292060 c:\deepees_framework_v2\\deepees_events\loop_procedure.h
+
+1557979478 c:\deepees_framework_v2\\deepees_events\key_procedure.h
+
+1560116250 c:\deepees_framework_v2\\deepees_events\room_procedure.h
+
+1591738813 c:\deepees_framework_v2\deepees_events\alarm.h
+	"timer.h"
+
+1591648934 c:\deepees_framework_v2\deepees_events\animation_player.h
+	"alarm.h"
+	<vector>
+
+1591577238 c:\deepees_framework_v2\deepees_events\timer.h
+	<SDL.h>
+
+1589144240 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl.h
+	"SDL_main.h"
+	"SDL_stdinc.h"
+	"SDL_assert.h"
+	"SDL_atomic.h"
+	"SDL_audio.h"
+	"SDL_clipboard.h"
+	"SDL_cpuinfo.h"
+	"SDL_endian.h"
+	"SDL_error.h"
+	"SDL_events.h"
+	"SDL_filesystem.h"
+	"SDL_gamecontroller.h"
+	"SDL_haptic.h"
+	"SDL_hints.h"
+	"SDL_joystick.h"
+	"SDL_loadso.h"
+	"SDL_log.h"
+	"SDL_messagebox.h"
+	"SDL_metal.h"
+	"SDL_mutex.h"
+	"SDL_power.h"
+	"SDL_render.h"
+	"SDL_rwops.h"
+	"SDL_sensor.h"
+	"SDL_shape.h"
+	"SDL_system.h"
+	"SDL_thread.h"
+	"SDL_timer.h"
+	"SDL_version.h"
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144238 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_main.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144238 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_stdinc.h
+	"SDL_config.h"
+	<sys/types.h>
+	<stdio.h>
+	<stdlib.h>
+	<stddef.h>
+	<stdarg.h>
+	<stdlib.h>
+	<malloc.h>
+	<stddef.h>
+	<stdarg.h>
+	<memory.h>
+	<string.h>
+	<strings.h>
+	<wchar.h>
+	<inttypes.h>
+	<stdint.h>
+	<ctype.h>
+	<math.h>
+	<float.h>
+	<alloca.h>
+	<malloc.h>
+	<malloc.h>
+	<malloc.h>
+	<stdlib.h>
+	<sal.h>
+	"begin_code.h"
+	"close_code.h"
+
+1589144238 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_config.h
+	"SDL_platform.h"
+
+1589144238 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_platform.h
+	"AvailabilityMacros.h"
+	"TargetConditionals.h"
+	<winapifamily.h>
+	"begin_code.h"
+	"close_code.h"
+
+1589144237 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\begin_code.h
+
+1589144239 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\close_code.h
+
+1589144239 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_assert.h
+	"SDL_config.h"
+	"begin_code.h"
+	<signal.h>
+	"close_code.h"
+
+1589144239 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_atomic.h
+	"SDL_stdinc.h"
+	"SDL_platform.h"
+	"begin_code.h"
+	<sys/cpuinline.h>
+	<mbarrier.h>
+	"close_code.h"
+
+1589144238 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_audio.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_endian.h"
+	"SDL_mutex.h"
+	"SDL_thread.h"
+	"SDL_rwops.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144237 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_error.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144237 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_endian.h
+	"SDL_stdinc.h"
+	<endian.h>
+	<endian.h>
+	"begin_code.h"
+	"close_code.h"
+
+1589144239 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_mutex.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144239 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_thread.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_atomic.h"
+	"SDL_mutex.h"
+	"begin_code.h"
+	<process.h>
+	<process.h>
+	<stdlib.h>
+	"close_code.h"
+
+1589144239 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_rwops.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144237 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_clipboard.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144240 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_cpuinfo.h
+	"SDL_stdinc.h"
+	<intrin.h>
+	<intrin.h>
+	<altivec.h>
+	<arm_neon.h>
+	<armintr.h>
+	<arm_neon.h>
+	<arm64intr.h>
+	<arm64_neon.h>
+	<mm3dnow.h>
+	<immintrin.h>
+	<mmintrin.h>
+	<xmmintrin.h>
+	<emmintrin.h>
+	<pmmintrin.h>
+	"begin_code.h"
+	"close_code.h"
+
+1589144237 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_events.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_video.h"
+	"SDL_keyboard.h"
+	"SDL_mouse.h"
+	"SDL_joystick.h"
+	"SDL_gamecontroller.h"
+	"SDL_quit.h"
+	"SDL_gesture.h"
+	"SDL_touch.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144239 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_video.h
+	"SDL_stdinc.h"
+	"SDL_pixels.h"
+	"SDL_rect.h"
+	"SDL_surface.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144240 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_pixels.h
+	"SDL_stdinc.h"
+	"SDL_endian.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144239 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_rect.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_pixels.h"
+	"SDL_rwops.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144239 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_surface.h
+	"SDL_stdinc.h"
+	"SDL_pixels.h"
+	"SDL_rect.h"
+	"SDL_blendmode.h"
+	"SDL_rwops.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144239 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_blendmode.h
+	"begin_code.h"
+	"close_code.h"
+
+1589144237 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_keyboard.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_keycode.h"
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144237 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_keycode.h
+	"SDL_stdinc.h"
+	"SDL_scancode.h"
+
+1589144238 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_scancode.h
+	"SDL_stdinc.h"
+
+1589144239 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_mouse.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144240 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_joystick.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144239 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_gamecontroller.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_rwops.h"
+	"SDL_joystick.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144238 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_quit.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+
+1589144239 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_gesture.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_video.h"
+	"SDL_touch.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144238 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_touch.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144240 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_filesystem.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144237 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_haptic.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_joystick.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144239 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_hints.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144238 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_loadso.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144239 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_log.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144240 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_messagebox.h
+	"SDL_stdinc.h"
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144239 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_metal.h
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144237 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_power.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144239 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_render.h
+	"SDL_stdinc.h"
+	"SDL_rect.h"
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144238 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_sensor.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144238 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_shape.h
+	"SDL_stdinc.h"
+	"SDL_pixels.h"
+	"SDL_rect.h"
+	"SDL_surface.h"
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144239 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_system.h
+	"SDL_stdinc.h"
+	"SDL_keyboard.h"
+	"SDL_render.h"
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144239 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_timer.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589144239 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_version.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1596424773 c:\deepees_framework_v2\deepees_visual_media\visual_media.h
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_ttf.h>
+	<cstring>
+
+1589223361 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_image.h
+	"SDL.h"
+	"SDL_version.h"
+	"begin_code.h"
+	"close_code.h"
+
+1454362934 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_ttf.h
+	"SDL.h"
+	"begin_code.h"
+	"close_code.h"
+
+1589312584 c:\deepees_framework_v2\deepees_window\window.h
+	<SDL.h>
+
+1589226765 c:\deepees_framework_v2\deepees_audio\sound.h
+	<SDL.h>
+	<SDL_mixer.h>
+
+1589223697 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_mixer.h
+	"SDL_stdinc.h"
+	"SDL_rwops.h"
+	"SDL_audio.h"
+	"SDL_endian.h"
+	"SDL_version.h"
+	"begin_code.h"
+	"close_code.h"
+
+1591581790 c:\deepees_framework_v2\deepees_visual_media_manager\media_set.h
+	<iostream>
+	<vector>
+	<animation_set.h>
+	<math_set.h>
+	<visual_media.h>
+	<point.h>
+	<button.h>
+
+1596425259 c:\deepees_framework_v2\deepees_visual_media_manager\media_bin.h
+	"media_set.h"
+	"camera.h"
+	<algorithm>
+
+1589313499 c:\deepees_framework_v2\deepees_mixer_bin\mixer_set.h
+	<vector>
+	<sound.h>
+	<music.h>
+
+1589313334 c:\deepees_framework_v2\deepees_audio\music.h
+	<SDL.h>
+	<SDL_mixer.h>
+
+1589233835 c:\deepees_framework_v2\deepees_mixer_bin\mixer_bin.h
+	"mixer_set.h"
+
+1589224174 c:\deepees_framework_v2\deepees_visual_media_manager\panel_interface.h
+	"media_bin.h"
+	<window.h>
+	<room_procedure.h>
+
+1560116250 c:\deepees_framework_v2\deepees_events\room_procedure.h
+
+1589224197 c:\deepees_framework_v2\deepees_visual_media_manager\room.h
+	<queue>
+	"panel_interface.h"
+	<loop_procedure.h>
+	<key_procedure.h>
+
+1558292060 c:\deepees_framework_v2\deepees_events\loop_procedure.h
+
+1589313433 c:\deepees_framework_v2\deepees_events\key_procedure.h
+
+1591416600 c:\deepees_framework_v2\deepees_room_controller\room_control.h
+	<room.h>
+
+1596425869 c:\deepees_framework_v2\deepees_main_controller\main_controller.h
+	<map>
+	<algorithm>
+	<math.h>
+	<alarm.h>
+	<animation_player.h>
+	<timer.h>
+	<room_control.h>
+	<mixer_bin.h>
+
+1551202750 c:\deepees_framework_v2\deepees_math_and_points\camera.h
+
+1551202672 c:\deepees_framework_v2\deepees_math_and_points\button.h
+
+1589220971 c:\deepees_framework_v2\deepees_math_and_points\math_set.h
+
+1555980820 c:\deepees_framework_v2\deepees_math_and_points\point.h
+
+1591823303 c:\deepees_framework_v2\deepees_file_reader\file_reader.h
+	<iostream>
+	<map>
+	<SDL.h>
+	<string>
+	<vector>
+	<sstream>
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl.h
+	"SDL_main.h"
+	"SDL_stdinc.h"
+	"SDL_assert.h"
+	"SDL_atomic.h"
+	"SDL_audio.h"
+	"SDL_clipboard.h"
+	"SDL_cpuinfo.h"
+	"SDL_endian.h"
+	"SDL_error.h"
+	"SDL_events.h"
+	"SDL_filesystem.h"
+	"SDL_gamecontroller.h"
+	"SDL_haptic.h"
+	"SDL_hints.h"
+	"SDL_joystick.h"
+	"SDL_loadso.h"
+	"SDL_log.h"
+	"SDL_messagebox.h"
+	"SDL_metal.h"
+	"SDL_mutex.h"
+	"SDL_power.h"
+	"SDL_render.h"
+	"SDL_rwops.h"
+	"SDL_sensor.h"
+	"SDL_shape.h"
+	"SDL_system.h"
+	"SDL_thread.h"
+	"SDL_timer.h"
+	"SDL_version.h"
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_main.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_stdinc.h
+	"SDL_config.h"
+	<sys/types.h>
+	<stdio.h>
+	<stdlib.h>
+	<stddef.h>
+	<stdarg.h>
+	<stdlib.h>
+	<malloc.h>
+	<stddef.h>
+	<stdarg.h>
+	<memory.h>
+	<string.h>
+	<strings.h>
+	<wchar.h>
+	<inttypes.h>
+	<stdint.h>
+	<ctype.h>
+	<math.h>
+	<float.h>
+	<alloca.h>
+	<malloc.h>
+	<malloc.h>
+	<malloc.h>
+	<stdlib.h>
+	<sal.h>
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_config.h
+	"SDL_platform.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_platform.h
+	"AvailabilityMacros.h"
+	"TargetConditionals.h"
+	<winapifamily.h>
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\begin_code.h
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\close_code.h
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_assert.h
+	"SDL_config.h"
+	"begin_code.h"
+	<signal.h>
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_atomic.h
+	"SDL_stdinc.h"
+	"SDL_platform.h"
+	"begin_code.h"
+	<sys/cpuinline.h>
+	<mbarrier.h>
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_audio.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_endian.h"
+	"SDL_mutex.h"
+	"SDL_thread.h"
+	"SDL_rwops.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_error.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_endian.h
+	"SDL_stdinc.h"
+	<endian.h>
+	<endian.h>
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_mutex.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_thread.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_atomic.h"
+	"SDL_mutex.h"
+	"begin_code.h"
+	<process.h>
+	<process.h>
+	<stdlib.h>
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_rwops.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_clipboard.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_cpuinfo.h
+	"SDL_stdinc.h"
+	<intrin.h>
+	<intrin.h>
+	<altivec.h>
+	<arm_neon.h>
+	<armintr.h>
+	<arm_neon.h>
+	<arm64intr.h>
+	<arm64_neon.h>
+	<mm3dnow.h>
+	<immintrin.h>
+	<mmintrin.h>
+	<xmmintrin.h>
+	<emmintrin.h>
+	<pmmintrin.h>
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_events.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_video.h"
+	"SDL_keyboard.h"
+	"SDL_mouse.h"
+	"SDL_joystick.h"
+	"SDL_gamecontroller.h"
+	"SDL_quit.h"
+	"SDL_gesture.h"
+	"SDL_touch.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_video.h
+	"SDL_stdinc.h"
+	"SDL_pixels.h"
+	"SDL_rect.h"
+	"SDL_surface.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_pixels.h
+	"SDL_stdinc.h"
+	"SDL_endian.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_rect.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_pixels.h"
+	"SDL_rwops.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_surface.h
+	"SDL_stdinc.h"
+	"SDL_pixels.h"
+	"SDL_rect.h"
+	"SDL_blendmode.h"
+	"SDL_rwops.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_blendmode.h
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_keyboard.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_keycode.h"
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_keycode.h
+	"SDL_stdinc.h"
+	"SDL_scancode.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_scancode.h
+	"SDL_stdinc.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_mouse.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_joystick.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_gamecontroller.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_rwops.h"
+	"SDL_joystick.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_quit.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_gesture.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_video.h"
+	"SDL_touch.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_touch.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_filesystem.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_haptic.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_joystick.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_hints.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_loadso.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_log.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_messagebox.h
+	"SDL_stdinc.h"
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_metal.h
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_power.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_render.h
+	"SDL_stdinc.h"
+	"SDL_rect.h"
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_sensor.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_shape.h
+	"SDL_stdinc.h"
+	"SDL_pixels.h"
+	"SDL_rect.h"
+	"SDL_surface.h"
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_system.h
+	"SDL_stdinc.h"
+	"SDL_keyboard.h"
+	"SDL_render.h"
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_timer.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890769 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\x86_64-w64-mingw32\include\sdl2\sdl_version.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl.h
+	"SDL_main.h"
+	"SDL_stdinc.h"
+	"SDL_assert.h"
+	"SDL_atomic.h"
+	"SDL_audio.h"
+	"SDL_clipboard.h"
+	"SDL_cpuinfo.h"
+	"SDL_endian.h"
+	"SDL_error.h"
+	"SDL_events.h"
+	"SDL_filesystem.h"
+	"SDL_gamecontroller.h"
+	"SDL_haptic.h"
+	"SDL_hints.h"
+	"SDL_joystick.h"
+	"SDL_loadso.h"
+	"SDL_log.h"
+	"SDL_messagebox.h"
+	"SDL_metal.h"
+	"SDL_mutex.h"
+	"SDL_power.h"
+	"SDL_render.h"
+	"SDL_rwops.h"
+	"SDL_sensor.h"
+	"SDL_shape.h"
+	"SDL_system.h"
+	"SDL_thread.h"
+	"SDL_timer.h"
+	"SDL_version.h"
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_main.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890678 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_stdinc.h
+	"SDL_config.h"
+	<sys/types.h>
+	<stdio.h>
+	<stdlib.h>
+	<stddef.h>
+	<stdarg.h>
+	<stdlib.h>
+	<malloc.h>
+	<stddef.h>
+	<stdarg.h>
+	<memory.h>
+	<string.h>
+	<strings.h>
+	<wchar.h>
+	<inttypes.h>
+	<stdint.h>
+	<ctype.h>
+	<math.h>
+	<float.h>
+	<alloca.h>
+	<malloc.h>
+	<malloc.h>
+	<malloc.h>
+	<stdlib.h>
+	<sal.h>
+	"begin_code.h"
+	"close_code.h"
+
+1583890678 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_config.h
+	"SDL_platform.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_platform.h
+	"AvailabilityMacros.h"
+	"TargetConditionals.h"
+	<winapifamily.h>
+	"begin_code.h"
+	"close_code.h"
+
+1583890678 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\begin_code.h
+
+1583890678 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\close_code.h
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_assert.h
+	"SDL_config.h"
+	"begin_code.h"
+	<signal.h>
+	"close_code.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_atomic.h
+	"SDL_stdinc.h"
+	"SDL_platform.h"
+	"begin_code.h"
+	<sys/cpuinline.h>
+	<mbarrier.h>
+	"close_code.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_audio.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_endian.h"
+	"SDL_mutex.h"
+	"SDL_thread.h"
+	"SDL_rwops.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_error.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_endian.h
+	"SDL_stdinc.h"
+	<endian.h>
+	<endian.h>
+	"begin_code.h"
+	"close_code.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_mutex.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890678 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_thread.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_atomic.h"
+	"SDL_mutex.h"
+	"begin_code.h"
+	<process.h>
+	<process.h>
+	<stdlib.h>
+	"close_code.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_rwops.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_clipboard.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_cpuinfo.h
+	"SDL_stdinc.h"
+	<intrin.h>
+	<intrin.h>
+	<altivec.h>
+	<arm_neon.h>
+	<armintr.h>
+	<arm_neon.h>
+	<arm64intr.h>
+	<arm64_neon.h>
+	<mm3dnow.h>
+	<immintrin.h>
+	<mmintrin.h>
+	<xmmintrin.h>
+	<emmintrin.h>
+	<pmmintrin.h>
+	"begin_code.h"
+	"close_code.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_events.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_video.h"
+	"SDL_keyboard.h"
+	"SDL_mouse.h"
+	"SDL_joystick.h"
+	"SDL_gamecontroller.h"
+	"SDL_quit.h"
+	"SDL_gesture.h"
+	"SDL_touch.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890678 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_video.h
+	"SDL_stdinc.h"
+	"SDL_pixels.h"
+	"SDL_rect.h"
+	"SDL_surface.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_pixels.h
+	"SDL_stdinc.h"
+	"SDL_endian.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_rect.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_pixels.h"
+	"SDL_rwops.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890678 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_surface.h
+	"SDL_stdinc.h"
+	"SDL_pixels.h"
+	"SDL_rect.h"
+	"SDL_blendmode.h"
+	"SDL_rwops.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_blendmode.h
+	"begin_code.h"
+	"close_code.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_keyboard.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_keycode.h"
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_keycode.h
+	"SDL_stdinc.h"
+	"SDL_scancode.h"
+
+1583890678 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_scancode.h
+	"SDL_stdinc.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_mouse.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_joystick.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_gamecontroller.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_rwops.h"
+	"SDL_joystick.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_quit.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_gesture.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_video.h"
+	"SDL_touch.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890678 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_touch.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_filesystem.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_haptic.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_joystick.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_hints.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_loadso.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_log.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_messagebox.h
+	"SDL_stdinc.h"
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_metal.h
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_power.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890677 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_render.h
+	"SDL_stdinc.h"
+	"SDL_rect.h"
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890678 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_sensor.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890678 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_shape.h
+	"SDL_stdinc.h"
+	"SDL_pixels.h"
+	"SDL_rect.h"
+	"SDL_surface.h"
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890678 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_system.h
+	"SDL_stdinc.h"
+	"SDL_keyboard.h"
+	"SDL_render.h"
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890678 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_timer.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1583890678 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_version.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1561870368 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_image.h
+	"SDL.h"
+	"SDL_version.h"
+	"begin_code.h"
+	"close_code.h"
+
+1547325881 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_ttf.h
+	"SDL.h"
+	"begin_code.h"
+	"close_code.h"
+
+1540997992 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\i686-w64-mingw32\include\sdl2\sdl_mixer.h
+	"SDL_stdinc.h"
+	"SDL_rwops.h"
+	"SDL_audio.h"
+	"SDL_endian.h"
+	"SDL_version.h"
+	"begin_code.h"
+	"close_code.h"
+
+1591590842 c:\deepees_framework_v2\deepees_events\animation_set.h
+	"animation_player.h"
+	<map>
+

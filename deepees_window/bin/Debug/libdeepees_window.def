@@ -1,0 +1,18 @@
+EXPORTS
+    _ZN8m_window10get_x_sizeEv @1
+    _ZN8m_window10get_y_sizeEv @2
+    _ZN8m_window11get_surfaceEv @3
+    _ZN8m_window12get_viewportEv @4
+    _ZN8m_window12handle_eventEjhii @5
+    _ZN8m_window12is_minimizedEv @6
+    _ZN8m_window12set_rendererEP12SDL_Renderer @7
+    _ZN8m_window14is_mouse_focusEv @8
+    _ZN8m_window15create_rendererEi @9
+    _ZN8m_window17fullscreen_switchEv @10
+    _ZN8m_window17is_keyboard_focusEv @11
+    _ZN8m_window4freeEv @12
+    _ZN8m_window4initEiiPKc @13
+    _ZN8m_windowC1Ev @14
+    _ZN8m_windowC2Ev @15
+    _ZN8m_windowD1Ev @16
+    _ZN8m_windowD2Ev @17

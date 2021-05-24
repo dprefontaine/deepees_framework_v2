@@ -1,0 +1,638 @@
+
+                                      FRAMEWORK PET PROJECT   (by Deepee)
+-----------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------
+
+
+          "BOARD" OF PROJECT IDEAS
+-------------------------------------------------
+
+Have done successfully (or sort of):
+ (from pre-dll)
+ -Shrimpy Revenge
+
+ (from recently converting to a giant blob of a dll)
+ -Point & Click Template (I'm not going to draw all of that, plus it wasn't structured reliably, so this was dropped despite being functional)
+
+ (after image pointers and loop control given to main controller & modularizing dlls)
+ -Pathfinding module
+ -Mover module
+ -Tower Defense
+ -Khema functional prototype
+
+Early on (to play around with the framework):
+(before)
+ -Turn-based RPG
+ -Dungeon exploring game
+ -Some space shooting mini game
+(now)
+ -Modules for:
+  -2.5D platformer
+  -Envoys
+  -pinball
+  -Tower Defense
+  -Dungeon explorer
+  -Rocket minigame
+  -plant growing w/ climate generating stats
+
+Dream projects:
+ -Faeround
+ -Envoys
+(this is whatever now and might do them anyways)
+
+
+Sometime Later:
+ -Clear up nomenclature more
+ -Keep later tutorials for future reference
+
+ -Create a repository to update and import this around easier
+ -Add image and button linking to make UIs easier
+ -Add more mixer functionality (have to research more on mixers for this)
+ -May do a 3D variation of framework
+
+ -May bind to Lua if practical (since I'm not out to over-engineer here)
+
+
+
+Changes:
+
+8/28/18
+------------
+Done (since then):
+ -Added timers
+ -Added base rooms
+ -Added media elements (all based on SDL tutorials)
+ -Added change in ticks to room update behavior
+
+To Do:
+ -Expand on room behaviors and parameters
+      -What if time is not needed?
+      -What if room follows "different" maths?
+      -What to do if a certain asset or media is not needed at the moment?
+
+Idea for room & viewports:
+ -All of them have inherited interface (so then they can all be updated as long as they are in a stack of the interface)
+      -Interface includes:
+          -Viewport position and size
+          -Is active or not
+          -Background
+          -Other UI stuff (which can be passed as parameters)
+          -Buttons and background click event
+
+8/29/18
+------------
+ -Added comments to room's update behavior
+
+8/30/18
+------------
+ -Added comments to room's render behavior
+ -Added more ideas to managing viewports
+ -Added game interface class
+
+10/15/18
+------------
+ -Set to -std=C++14
+ -Added binary and linear searches
+ -Added random and other math stuff
+
+10/17/18
+------------
+ -Code maintenance
+ -Set j increments for click event of game interface to whenever coordinate does not evaluate instead, so onward, the button condition does not evaluate the wrong index of the stack
+ -Added media bins for game interface
+ -Added an integer reference ID to media objects for stack management sake
+
+10/18/18
+------------
+ -Added listening setting component to game interface, so the game interface can be visible or active, but it can or cannot listen to events
+ -Removed active parameter from game interface initiation
+ -Added methods to media elements
+
+11/15/18
+------------
+ -Added orientation, color tint, transparency, and additional constructors to image class
+ -Created an empty font library folder
+ -Created a primitive shape class
+
+11/19/18
+------------
+ -Made it through SDL tutorials 27 and 29
+ -Created a class for hitboxes
+
+11/20/18
+------------
+ -Tutorials 30,32,33
+ -Created a camera class
+ -Created an integer reader class
+
+11/21/18
+------------
+ -Tutorial 35
+ -Created a window class
+
+To do:
+ -Figure what to do with both room and window
+
+11/23/18 - 11/29/18
+--------------
+ -Room made into multiple rooms instead vs one main room
+ -Moved some stacks of interface to rooms instead
+ -Added more conditions to rooms (i.e. if it uses time or not)
+ -Changed the ID variable of objects to element ID to make stack index and indicating integers easier to distinguish
+ -Cleared some initiation steps
+ -Moved room checker to before the event loop
+ -Main timer spike cleared when playing after stop
+ -Comparison or sorting step added to media and math elements w/ element ID
+ -Bit of cleaning up and rearranging of global variables and enumerations
+
+11/30/18
+--------------
+ -Added activate/unactivate feature to room (to keep adding/removing media separate from activation)
+ -Fixed an issue with initiation procedures (arrays don't have negative indexes you dumbass xp)
+ -Added a load room function to pre-game loop steps
+ -Moved room enumeration
+ -Added instruction comments file
+
+Things to add left:
+ -Interface actions and behavior loading
+ -Slot for adding game rules
+
+12/1/18
+--------------
+ -Added comparison method to images and text
+ -Sorting media for interfaces
+
+12/2/18
+--------------
+ -Added active variable to image
+ -Added media manager behaviors
+
+To do:
+ -Add sorting to media managers
+ -Add pixel position to images/text/shapes
+
+Things to add left:
+ -Means of adding game rules
+
+12/3/18
+--------------
+ -Changed closing procedures
+ -Modified initiation methods for text, images, and shapes
+ -Removed un-needed scopes to behaviors
+ -Fixed hung app issue while closing
+ -Added wipe behavior to sound
+ -Added fullscreen switch and moved constants to window header and code
+
+12/5/18
+--------------
+ -Changed rooms initialization to pointer becoming array
+ -Fixed closing issue
+ -Added coordinate variables and behaviors to visual media
+ -Tweaked rendering steps and interface scopes
+ -Added active variable to camera (to get first active camera in interface)
+
+12/6/18
+--------------
+ -Removed coordinates and so forth from visual media
+ -Created a coordinate class to help w/ rendering
+ -Created struct to help w/ rendering a media over and over again
+ -Tweaked game interface behaviors to deal w/ bundles
+
+12/7/18
+--------------
+ -Tweaked delete behaviors to delete based on given element ID
+ -Add and remove behaviors for points
+ -Added shape behaviors to interface
+
+12/8/18
+--------------
+ -Added element ID to shape
+ -Tweaked media initiation to have blank initiations possible
+ -Added missing behaviors for shape
+ -Added button class and button bundle
+ -Tweaked interface behaviors to comply with button bundle
+ -Added behaviors for button bundles
+
+12/9/18
+--------------
+ -Touch event for room now return an array of int
+ -Added comparison for sorting behaviors of interface
+
+Things to do:
+ -Create swap method for arraylists
+ -Add swap method to sorting behaviors
+ -Fixed some comparison methods
+
+12/11/18
+--------------
+ -Added magnitude function
+ -Added print to room event touch (to make interfaces easier to keep track of)
+ -Print method included in room event behavior to make sure interfaces are working as intended
+ -Changed room from a class to struct to make modifying interfaces easier
+ -Added set viewport to rendering
+ -Tweaked/ added an actual viewport to make rendering interface viewports less painful
+ -Tweaked cameras a little
+
+12/12/18
+--------------
+ -Added camera updating (and bounds when moved)
+ -Tweaked interface initiation for camera and full interface bounds
+ -Added additional constructor for interface
+ -Removed offset and element ID from camera
+ -Media rendering tweaked to be based around camera
+ -Tweaked test fill protocols for room rendering
+
+12/12/18
+--------------
+ -Added move protocol to button bundle
+ -Added hitbox checker to game interface
+ -Readded hitboxes and managers to game interface
+ -Added event cluster for multiple hitbox reading
+
+12/15/18
+--------------
+ -Hitbox reading added
+
+12/16/18
+--------------
+ -Added compare to behaviors for event rectangles and circles
+ -Added event cluster manager to game interface
+ -Tweaked game interface behaviors to find elements by index instead of searching element ID
+ -Added an additional search method to game interface behaviors
+
+1/18/19
+--------------
+ -Added is_active bool feature to sound class
+ -Fixed naming issue when it came to object initiation
+ -Modified image loading for color key to work
+ -Modified parameters for rendering media clusters
+
+1/19/19
+--------------
+ -Added parameters to changing button positions (so now buttons scroll in a viewport)
+ -vp variables in game interface class is now used as an offset for camera (so images and so forth are positioned relative to their respective viewport)
+
+1/20/19
+--------------
+ -Added move point functions to visual media (images, shapes, text)
+ -Tweaked camera so now upper bounds of rendering in an interface works properly
+ -Removed sorting behaviors from interface (since it does not have much purpose if accessing is done by element ID anyways)
+ -Tweaked prints during steps
+ -Added start of framework directions
+
+ 1/21/19
+-------------
+ -Moved variable scopes in main.cpp
+ -Added string constant for window name (to make it easier to edit)
+ -Tweaked camera values
+ -Printing inactive for now
+ -Separated key input queue conditions
+ -Added room parameter to deactivating room (in case specific procedures for rooms have to be done)
+ -Moved SDL libraries to a closer directory to the project
+
+  1/22/19
+-------------
+ -Added a generic class to mechanics (it really doesn't do anything)							**the mechanics tools were pointless tbh (6/8/20)
+ -Added load text method to game interface (forgot to do so earlier xp)
+ -Added scale parameter to loading text to make text bigger or smaller
+
+ -------------------------------------------------------------------------- start of version 1.1
+
+  1/30/19
+-------------
+ -Added surface variable to window
+
+   1/31/19
+-------------
+ -Added global window surface for image formatting
+ -Added free surface to clear window surface
+ -Loading image now has stretching steps
+ -Loading image now has color key parameter (so color key is optional and makes loading backgrounds easier)
+
+   2/1/19
+-------------
+ -Changed room struct to class
+ -Changed room parameters to fit as class
+ -Added additional behaviors to room to accommodate private vectors and variables (i.e. reading files, loading media, accessors, mutators, etc.)
+
+    2/2/19
+-------------
+ -Added room index checker
+
+     2/3/19
+-------------
+ -Moved files for room and event loop controller
+ -Tweaked linking order of files
+ -Added name to room object (along w/ accessor, mutator, and comparer)
+ -Removed screensaver and textinput feature from initiation
+ -Tweaked window clearing behavior
+ -Added loop update function
+ -Added room activation, deactivation, and rendering functions
+
+      2/4/19
+--------------
+ -Added room listen function (to make listening to rooms safer)
+ -Changed room's event listen function to return queues instead
+ -Changed room event list to a queue
+ -Tweaked key input to put enumerations into room event list (as a queue)
+ -Added event key loop which takes in a queue of pressed keys
+ -Added event mouse loop which takes in a queue of mouse activities
+
+      2/5/19
+--------------
+ -Removed update function from room class
+ -Added room behavior code
+ -Added timer playing/paused parameters to game loop and input queues
+ -Added preloop initiation function (to make all room adding in one file
+ -New feature: animation player (tbh I put too much work on myself this time xP)
+ -Added animation player accessor and mutators
+ -Added animation threshold player
+
+       2/6/19
+--------------
+ -Added exiting room for closing procedures so asset clearing is less painful
+ -Added additional loop procedures (room start, room end, postloop)
+ -Added previous room variable
+ -Tweaked room checker to do other things before activating/deactivating a room
+ -Deactivating a room to be based on previous room variable
+ >Tested to see if images work
+ -Changed linking of mechanics header
+
+       2/7/19
+--------------
+ -Added mechanic stat template class (since it is common for any game to have a ceiling and a floor on their numbers)
+
+       2/8/19
+--------------
+ -Can disable SDL mouse during initiation
+ -Added media stuff from interface to room as a sort of global media unaffected by camera
+
+       2/9/19
+--------------
+ -Adding rendering media to room
+    -TO DO THIS, IT IS MORE BASED ON A TRICK OF RENDERING ALL THE ROOM'S MEDIA RELATIVE TO EACH INTERFACE VIEWPORT THAN HAVING THEIR OWN VIEWPORT (OTHERWISE IT ERASES ALL THE VIEWPORT DRAWS)
+ -Checking off some things from the list
+ -Added name variable and ID to mechanic stat
+ -Added mouse behavior function (might remove this later, can't think straight tonight)
+
+      2/10/19
+---------------
+ -Tweaked iterations managed in media stuff
+ -Changed functions in z_math to generic functions
+ >Tested animation player
+ -Tweaked loop issue in animation player class
+ -Added animation reset to animation player class
+
+      2/12/19
+---------------
+ -Modified images, shapes, and text and moved shared variables to a visual_media parent class for consistency
+ -Added alarm parent class for animation player and other timer-based in the future
+ -Tweaked animation player to not bug w/ higher passes than 1
+ -Removed object get behaviors for now (unless I really find a need for it and have a better way to do so)
+ -Added rendering layer get for visual medias for rooms and interfaces
+ -Added rotation and flip state to visual_media
+ -Tweaked game interface rendering to also consider rendering layer when rendering each media
+
+      2/13/19
+----------------
+ -Changed constructor of visual media to a pseudo constructor function since it wouldn't budge for child classes
+ -Added array flattener for rendering layers
+ -Added uses index procedures, a floored array check, and a max finder to array flattener (my brain is leaking tbh)	**this update was pointless and I just used the STL sort anyways (6/8/20)
+ -Added visual media behaviors to game interface and room
+
+      2/14/19
+----------------
+ -Added color mod and alpha mod behaviors to image, interface, and room
+ -Fixed interface elements not being modified when called by room
+ -Moved visual media rendering to center instead of upper left corner (and fixed rendering issue w/ image)
+ -Changed fonts from arrays to vector w/ initiation and closing procedures to match
+ -Changed font loading parameters to pass ttf fonts instead of enumeration ints
+ -Fixed content of font not initiating right
+ >Tested to see if fonts work
+
+       2/15/19
+----------------
+ -Tweaked some closing procedures to make closing (hopefully) more proper
+
+       2/25/19
+----------------
+ -Revamped folders so now all headers are under one
+ **Will have to think how to carry out event loop
+        -Portability?
+        -Keeping it abstracted?
+ -Added code to media folders to make this template easier to replicate
+
+       3/6/19
+----------------
+ -Changed including files from <> to "" (I should've done this ages ago xP)
+ -Restructured framework to be contained in its sort of own static lib folder
+ -Added framework workbench folder
+ (So now this should be infinitely easier to use as a template)
+
+       3/24/19
+----------------
+ -Added accessors and mutators for image x and y clip
+ -Starting to move visual media functions to private & try to make available functions less confusing
+ -Adding functions to call private visual media functions
+ -Making function nomenclature more consistent
+
+        4/4/19
+----------------
+ -Created room controller object
+ -Turned rooms from vector to array (moved back anyways)
+ -Removed a ton of interface functions
+ -Trying to move from a ton of functions to calling to interface references
+
+        4/16/19
+----------------
+ -Set rooms and interfaces back to vectors w/ loading to match
+ -Streaming functions now pass queues by reference
+ -Added empty array swapping for better memory de-allocation
+
+        4/17/19
+----------------
+ -Re-attempting getting room/interface functions for safer calling (this time to room controller only)
+ -Added memory freeing to some queues too
+ -Created media bin class to save on code space and to make updating media management easier
+
+        4/18/19 - 4/28/19
+--------------------------------
+ -Restructured visual media bins from image, text, and shape to only visual media and bundles pointing to them
+ -Image and text condensed to just visual media
+ -Sort added to bundle pointing
+ -Preloop streaming procedures removed for now to make starting the program easier to start up
+ -Moved clip data from image (now visual media) to render bundle along w/ other variables like rotation & flip
+ -Modifications to media bin to suite visual media
+ -Added load as snapshot to visual media
+ -Added set render target to media bin
+ -Rendering visual media now takes rotation, flip and clip parameter
+ -Added pixels and pitch variables to visual media
+ -Added pixel accessor to visual media
+
+         5/3/19
+--------------------------------
+ -Turned room controller from a struct to a class
+ -Added try/catch to controller room and interface access
+ -Moved media set struct functions to a cpp file
+
+          5/11/19
+--------------------------------
+ -Moved most of the loop, initiation, and room controller to a main controller struct
+
+          5/13/19
+--------------------------------
+ -Added reference variable to rooms in main file called workspace
+ -Added new struct called loop procedure (for managing loop reading)
+ -Added new struct called response procedure
+
+           5/14/19
+--------------------------------
+ -Added play, pause, and time pass bools to procedure classes (plus coding out all three classes)
+ -Added bool return to procedure reading as well as tick parameters to procedure function variable
+ -Moved room controller in main controller to private
+ -Added new struct called room procedure (for mouse behavior)
+ -Added queues of loop procedures to main controller for start & end
+ -Added vectors of loop, response, and room procedures to main controller and rooms
+ -Added get workspace function to main control (for accessing rooms) (would like to hide room modifiers, but will have to do that another time, but really want to keep rooms private)
+ -Made a couple tweaks to alarm and animation player (will revisit again in the future)
+
+           5/15/19
+--------------------------------
+ -Fixed access violation when closing (the program hates it when I try to delete queues :P)      (happy 3 MBs too)  (I mean 4.8 MBs)
+ -Fixed key input error (for now, still needs more testing)
+ -Tweaked initiation loop and added postloop procedures
+ -Added play and pause parameters to procedure reading
+ -Added room start, room end, pre and post render loop procedures to room and main
+ -Added room check to room reading procedures (so the program won't get an out of bounds error)
+ -Moved some room control and main control functions to private for less tampering with important things
+
+            5/16/19
+--------------------------------
+ -Added interface procedures to main/room/interface
+ -Made more tweaks & cleared up some code bits around(i.e. ticks now just a loop parameter, removed unused functions, etc.)
+ -Added remove procedures to main/room
+
+             5/17/19
+--------------------------------
+ -Couple tweaks to bool returns and bool conditions for loops
+
+              5/19/19
+--------------------------------
+ -Finally tested use of functions for loop a little
+ -Added adder/remover functions for main control procedures
+ -Cleared up on some procedure variable names
+ -Tweaked time passed in main loop (so procedures take time passed and )
+ -Changed procedure parameters to unsigned int
+
+               5/20/19
+--------------------------------
+ -Moved screen width, height, and name to main controller for guarded access while also being able to modify and be ready for dll
+ -Moved renderer and window to main_controller.cpp to make it ready for turning into a dll
+ (going to hold off on turning this into a dll until functionality is tested a bit)
+
+               5/31/19
+--------------------------------
+ -Moved framework to a dependent shared lib
+
+               6/9/19
+--------------------------------
+ -Maintenance and testing mouse procedures
+ -Added play/pause manager to main controller
+ -Removed some closing procedures for easier closing
+
+               9/10/19
+--------------------------------
+ -Moved components to multiple DLLs instead of one for more modularity
+	*may have to tweak DLLs, but again, this is to make things more modular for easier maintenance
+ 
+               11/19/19
+--------------------------------
+ -Moved all components to DLLs
+ -Added renderer and cursor setting to main controller
+
+               11/21/19
+--------------------------------
+ -Modified visual_media_new, visual_media_spot_new, and visual_media_point_new in media bin to return pointers
+
+               11/24/19
+--------------------------------
+ -Visual media not properly loading images now fixed
+
+               11/30/19
+--------------------------------
+ -Removed clear room function from room controller
+ -Added HSL colorspace data to visual media w/ converters
+ -Added filter parameters to setting visual media color mod and alpha mod
+
+               12/2/19
+--------------------------------
+ -Added visual_media_set_blend_mode to media bin
+ -Added lock rect to visual media for locking texture (and respective functions to media bin)
+
+               12/5/19
+--------------------------------
+ -Added texture setting parameter for loading visual media as blank
+ -Add pixel function added to visual media
+ -Added update texture when not locking texture for visual media
+
+          12/25/19 - 1/8/20
+--------------------------------
+ -Added map bins for images, buttons, sounds, music, and font
+ -Added encapsulation functions for each new map
+ -Tweaked game loop and moved room checking to set_room function
+ -Tweaked panel interfaces to move button checking to the button struct itself (and prevent crashing)
+ -Tweaked set_game_active to also set rooms to listening
+ -A lot of debugging to fix font loading, image loading, etc.
+ -Added element ID to render_bundle struct
+
+*****Overall, the framework should be much more stable and smoother than ever after this update
+
+          3/17/20
+--------------------------------
+ -Modified key inputs for more consideration of key up events and extended key presses
+
+
+       3/18/20 - 3/19/20
+--------------------------------
+ -Tweaked camera movement so now buttons are properly positioned after reaching the camera boundary
+ -Fixed main controller not retrieving buttons for button functions
+ -Added button point for button object class for more button functionability (and respective functions to main)
+ -Mouse events consider whether or not button is active
+
+       4/16/20
+--------------------------------
+ -Fixed images sharing the same sprite sources not linking correctly
+
+----------------------------------------------------------------------------- v2 of the main controller framework starts here
+
+       5/10/20 - 5/11/20
+--------------------------------
+ -Fixed geometry drawing functions earlier rendering awkwardly
+ -Condensing structure to less projects for more portability (since priming in order to add to github)
+ -Linking to updated SDL libraries
+
+       6/6/20
+--------------------------------
+ -Tweaked some vector manipulations to use try/catch instead of a size check function
+ -Added more functions concerning independence between render spots and image data
+
+       6/7/20 - 6/8/20
+--------------------------------
+ -Restructured animation player class to read a vector of a pair of unsigned ints and rectangles
+ -Added an animation set class to manage animation player
+ -Added an animation set pointer to image pointing class
+ -Added animation loop and respective animation functions to main controller, so now there are animations
+ -Tweaked animation player again so that it will stay in bounds of the vector
+
+       8/3/20
+--------------------------------
+ -Added image size accessors to main controller
+ -Added word wrapping parameters to text & changed text loading from solid to blended
+
+       8/5/20
+--------------------------------
+ -Fixed room control not changing rooms properly
+
+
+FOR LATER: 
+ -modify button functions to now consider if either the mouse was left or right clicked
