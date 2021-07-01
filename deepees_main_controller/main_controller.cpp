@@ -41,9 +41,16 @@ main_controller::main_controller(int screen_width, int screen_height, std::strin
     pre_render_procedures = std::vector<loop_procedure>();
     post_render_procedures = std::vector<loop_procedure>();
 
-    key_procedures = std::vector<key_procedure>();
+
+    key_down_procedures = std::vector<key_procedure>();
+
+    key_up_procedures = std::vector<key_procedure>();
+
+    key_state_procedures = std::vector<key_state_procedure>();
 
     mouse_procedures = std::vector<room_procedure>();
+
+
 
     printing = printing_on;
 
@@ -73,6 +80,16 @@ main_controller::~main_controller(){
     std::queue<int>().swap(room_event_list);
     std::vector<int>().swap(key_down_events);
 
+    std::queue<key_push>().swap(key_down_queue);
+    std::queue<key_push>().swap(key_up_queue);
+
+    std::vector<key_procedure>().swap(key_down_procedures);
+    std::vector<key_procedure>().swap(key_up_procedures);
+    std::vector<key_state_procedure>().swap(key_state_procedures);
+
+    std::vector<room_state_procedure>().swap(mouse_state_procedures);
+    std::vector<room_procedure>().swap(mouse_procedures);
+
     std::queue<loop_procedure>().swap(initialize_queue);
 
     std::queue<loop_procedure>().swap(closing_queue);
@@ -80,10 +97,6 @@ main_controller::~main_controller(){
     std::vector<loop_procedure>().swap(pre_render_procedures);
 
     std::vector<loop_procedure>().swap(post_render_procedures);
-
-    std::vector<key_procedure>().swap(key_procedures);
-
-    std::vector<room_procedure>().swap(mouse_procedures);
 
     std::cout << "Clearing and deleting procedures successful!" << std::endl;
     std::cout << "Finalizing closing..." << std::endl;
@@ -113,6 +126,7 @@ bool main_controller::initialize(){
             init_flag = false;
         }
 
+    ///INITIALIZING WINDOW AND RENDERER
     if (init_flag){
         //INITIALIZE RENDERER AND OTHER ELEMENTS
         //
@@ -127,6 +141,7 @@ bool main_controller::initialize(){
         //std::cout << renderer << std::endl;
     }
 
+    ///INITIALIZING IMAGE LIBRARY
     if (init_flag){
         SDL_SetRenderDrawColor(renderer,0x00,0x00,0x00,0xFF);
         SDL_RenderClear(renderer);
@@ -169,9 +184,20 @@ bool main_controller::initialize(){
 
     if(printing) std::cout << "Initializing SDL elements successful!" << std::endl;
 
-    //INITIALIZING ROOM CONTROLLER
+    ///INITIALIZING IMAGE SOURCE OBJECT
     if (init_flag){
-        rooms = new room_controller(window, renderer);
+        sources = new image_source_controller();
+
+        if (sources == NULL){
+            init_flag = false;
+        } else {
+            sources->set_renderer(renderer);
+        }
+    }
+
+    ///INITIALIZING ROOM CONTROLLER
+    if (init_flag){
+        rooms = new room_controller(window, renderer, sources);
         preloop_initiation();
         is_closed = false;
     }
@@ -279,9 +305,13 @@ int main_controller::loop_run(){
         playing = main_timer.get_playing();
         paused = main_timer.get_paused();
 
-        ///EVENT LOOP (UNTIL THERE IS NOTHING TO POLL)
-        //
+
         while (SDL_PollEvent(&e) != 0){
+
+            ///OLD EVENT LOOP HERE
+            //
+            /*
+
             //QUIT EVENT
             //
             if (e.type == SDL_QUIT)
@@ -348,18 +378,51 @@ int main_controller::loop_run(){
                     key_down_events.swap(stored_keys);
             }
 
-        event_key_loop();
+            event_key_loop();
 
 
-        ///MOVE MOUSE STATES TO MOUSE EVENT CHECKER TO PROCESS (ROOM EVENT QUEUE SHOULD BE CLEARED FROM READING)
-        //
-        room_event_list = rooms->room_listen(e);
-        event_mouse_loop();
+            ///MOVE MOUSE STATES TO MOUSE EVENT CHECKER TO PROCESS (ROOM EVENT QUEUE SHOULD BE CLEARED FROM READING)
+            //
+            room_event_list = rooms->room_listen(e);
+            event_mouse_loop();
 
-        //CLEARING ANY PREVIOUS INPUT
-        //
-        while (!(room_event_list.empty()))
-            room_event_list.pop();
+            //CLEARING ANY PREVIOUS INPUT
+            //
+            while (!(room_event_list.empty()))
+                room_event_list.pop();
+                */
+
+
+            ///NEW EVENT LOOP
+
+            //CHECKING KEY STATES
+            const Uint8* current_key_state = SDL_GetKeyboardState(NULL);
+
+            //CHECKING KEY PRESSES
+            switch (e.type){
+                case SDL_QUIT:
+                    quit = true;
+                break;
+
+                case SDL_KEYDOWN:
+                    add_to_key_down_queue(e.key.keysym.scancode, e.key.repeat != 0);
+                break;
+
+                case SDL_KEYUP:
+                    add_to_key_up_queue(e.key.keysym.scancode, e.key.repeat != 0);
+                break;
+            }
+
+            //UPDATING ALL KEY PROCEDURES
+            key_state_procedures_update(current_key_state);
+            key_down_procedures_update();
+            key_up_procedures_update();
+
+            //CHECKING MOUSE
+            mouse_state_update();
+
+            room_event_list = rooms->room_listen(e);
+            event_mouse_update();
         }
 
         ///RENDERING CURRENT ROOM AND MOUSE BEHAVIORS
@@ -476,6 +539,36 @@ void main_controller::set_camera_position(int room_to, int panel_to, int x, int 
     panel_obs = NULL;
 }
 
+int main_controller::point_to_room(int new_room){
+    if (new_room == -1){
+        room_index = -1;
+        room_point = NULL;
+    } else {
+        room_index = new_room;
+
+        if ((room_point = rooms->room_get(new_room)) == NULL){
+            room_index = -1;
+        }
+    }
+
+    return room_index;
+}
+
+int main_controller::point_to_panel(int new_panel){
+    if (new_panel == -1){
+        panel_index = -1;
+        panel_point = NULL;
+    } else {
+        panel_index = new_panel;
+
+        if ((panel_point = rooms->interface_get(room_index, panel_index)) == NULL){
+            panel_index = -1;
+        }
+    }
+
+    return panel_index;
+}
+
 //IMAGE SOURCE INITIALIZER
 image_source_point* main_controller::get_image_source_point(std::string source){
     try {
@@ -486,31 +579,32 @@ image_source_point* main_controller::get_image_source_point(std::string source){
 }
 
 std::string main_controller::new_image_source(std::string source_name, std::string image_path, int room_index, int panel_index){
-    room* room_point = NULL;
-    panel_interface* panel_point = NULL;
+    room* temp_room_point = NULL;
+    panel_interface* temp_panel_point = NULL;
 
     bool source_initiated = false;
 
     //CHECK IF KEY NAME NOT REGISTERED AND GAME INITIATED
     if (get_image_source_point(source_name) == NULL && !is_closed){
-        if ((panel_point = rooms->interface_get(room_index, panel_index)) != NULL){
+        if ((temp_panel_point = rooms->interface_get(room_index, panel_index)) != NULL){
             if (printing) std::cout << "loading image source of " << source_name << " in panel " << panel_index << " of room " << room_index << std::endl;
 
-            image_sources.insert(std::pair<std::string, image_source_point*>(source_name, new image_source_point(room_index, panel_index,
-                                           panel_point->visual_media_new(visual_media(0xFF, 0xFF, 0xFF, 0xFF, total_images)))));
+            image_sources.insert(std::pair<std::string, image_source_point*>(source_name, new image_source_point(
+                                           sources->visual_media_new(visual_media(0xFF, 0xFF, 0xFF, 0xFF, total_images)))));
+
             total_images++;
 
-        } else if ((room_point = rooms->room_get(room_index)) != NULL) {
+        } else if ((temp_room_point = rooms->room_get(room_index)) != NULL) {
             if (printing) std::cout << "loading image source of " << source_name << " in room " << room_index << std::endl;
 
-            image_sources.insert(std::pair<std::string, image_source_point*>(source_name, new image_source_point(room_index, -1,
-                                           room_point->visual_media_new(visual_media(0xFF, 0xFF, 0xFF, 0xFF, total_images)))));
+            image_sources.insert(std::pair<std::string, image_source_point*>(source_name, new image_source_point(
+                                           sources->visual_media_new(visual_media(0xFF, 0xFF, 0xFF, 0xFF, total_images)))));
 
             total_images++;
         }
 
-        room_point = NULL;
-        panel_point = NULL;
+        temp_room_point = NULL;
+        temp_panel_point = NULL;
     }
 
     if (source_initiated)
@@ -524,9 +618,7 @@ std::string main_controller::new_image_source(std::string source_name, std::stri
 }
 
 //QUICK IMAGE INITIALIZER
-std::string main_controller::new_image(std::string image_name, std::string image_path, int room_index, int panel_index, SDL_Rect clip_rect, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha){
-    room* room_point = NULL;
-    panel_interface* panel_point = NULL;
+std::string main_controller::new_image(std::string image_name, std::string image_path, SDL_Rect clip_rect, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha){
     int visual_media_point = -1;
     int render_spot_point = -1;
 
@@ -534,27 +626,28 @@ std::string main_controller::new_image(std::string image_name, std::string image
 
     //CHECK IF GAME HAS BEEN INITIATED AND KEY NAME IS NOT REGISTERED YET
     if (get_image_point(image_name) == NULL && !is_closed){
-        if ((panel_point = rooms->interface_get(room_index, panel_index)) != NULL){
+        if (panel_point != NULL){
             if (printing) std::cout << "loading image of " << image_name << " in panel " << panel_index << " of room " << room_index << std::endl;
 
             //CREATING A NEW IMAGE POINT AT A PANEL
             images.insert(std::make_pair(image_name, new image_point(
-                                         room_index, panel_index,
-                                         (visual_media_point = panel_point->visual_media_new(visual_media(red, green, blue, alpha, total_images))), //CREATING IMAGE
+                                         (visual_media_point = sources->visual_media_new(visual_media(red, green, blue, alpha, total_images))), //CREATING IMAGE
                                          room_index, panel_index,
                                          render_spot_point = panel_point->visual_media_spot_new(rendering_bundle(visual_media_point, {clip_rect.x, clip_rect.y, clip_rect.w, clip_rect.h} , 0.0, SDL_FLIP_NONE, total_images, total_images)), //CREATING CLIP
                                          total_images)));
 
             //CREATING A NEW IMAGE SOURCE (IN CASE NO PANEL SPOTS)
             image_sources.insert(std::make_pair(image_name, new image_source_point(
-                                        room_index, panel_index,
                                         visual_media_point)));
 
-            panel_point->visual_media_load_as_image(visual_media_point, image_path.c_str());
+            if (!sources->visual_media_load_as_image(visual_media_point, image_path.c_str())){
+                if (printing) std::cout << "failed to load image!" << std::endl;
+                image_initiated = false;
+            }
 
             //SETTING RENDER SPOT SIZE TO IMAGE'S SIZE IF NEED-BE
             if (clip_rect.x < 0 || clip_rect.y < 0 || clip_rect.w < 1 || clip_rect.h < 1)
-                panel_point->visual_media_spot_set(render_spot_point, {0,0,panel_point->visual_media_get_x_size(visual_media_point),panel_point->visual_media_get_y_size(visual_media_point)});
+                panel_point->visual_media_spot_set(render_spot_point, {0,0,sources->visual_media_get_x_size(visual_media_point),sources->visual_media_get_y_size(visual_media_point)});
 
             //sort_and_repoint_images(room_index, panel_index, room_point, panel_point);
 
@@ -562,27 +655,25 @@ std::string main_controller::new_image(std::string image_name, std::string image
             total_images++;
 
             image_initiated = true;
-        } else if ((room_point = rooms->room_get(room_index)) != NULL){
+        } else if (room_point != NULL){
             if (printing) std::cout << "loading image of " << image_name << " in room " << room_index << std::endl;
 
             //CREATING A NEW IMAGE POINT AT A ROOM
             images.insert(std::make_pair(image_name, new image_point(
-                                         room_index, -1,
-                                         (visual_media_point = room_point->visual_media_new(visual_media(red, green, blue, alpha, total_images))), //CREATING IMAGE
+                                         (visual_media_point = sources->visual_media_new(visual_media(red, green, blue, alpha, total_images))), //CREATING IMAGE
                                          room_index, -1,
                                          render_spot_point = room_point->visual_media_spot_new(rendering_bundle(visual_media_point, {clip_rect.x, clip_rect.y, clip_rect.w, clip_rect.h} , 0.0, SDL_FLIP_NONE, total_images, total_images)), //CREATING CLIP
                                          total_images)));
 
             //CREATING A NEW IMAGE SOURCE (IN CASE NO PANEL SPOTS)
             image_sources.insert(std::make_pair(image_name, new image_source_point(
-                                        room_index, -1,
                                         visual_media_point)));
 
-            room_point->visual_media_load_as_image(visual_media_point, image_path.c_str());
+            sources->visual_media_load_as_image(visual_media_point, image_path.c_str());
 
             //SETTING RENDER SPOT SIZE TO IMAGE'S SIZE IF NEED-BE
             if (clip_rect.x < 0 || clip_rect.y < 0 || clip_rect.w < 1 || clip_rect.h < 1)
-                room_point->visual_media_spot_set(render_spot_point, {0,0,room_point->visual_media_get_x_size(visual_media_point),room_point->visual_media_get_y_size(visual_media_point)});
+                room_point->visual_media_spot_set(render_spot_point, {0,0,sources->visual_media_get_x_size(visual_media_point),sources->visual_media_get_y_size(visual_media_point)});
 
             //sort_and_repoint_images(room_index, panel_index, room_point, panel_point);
 
@@ -591,75 +682,53 @@ std::string main_controller::new_image(std::string image_name, std::string image
 
             image_initiated = true;
         }
-
-        room_point = NULL;
-        panel_point = NULL;
     }
 
-    if (image_initiated)
+    if (image_initiated){
+        if (printing) std::cout << "image loaded at source " << visual_media_point << std::endl;
+
         return image_name;
-    else
+    }else
         return "";
 }
 
-std::string main_controller::new_image(std::string image_name, std::string image_path, int room_index, int panel_index, SDL_Rect clip_rect){
-    return new_image(image_name, image_path, room_index, panel_index, clip_rect, 0xFF, 0xFF, 0xFF, 0xFF);
+std::string main_controller::new_image(std::string image_name, std::string image_path, SDL_Rect clip_rect){
+    return new_image(image_name, image_path, clip_rect, 0xFF, 0xFF, 0xFF, 0xFF);
 }
 
-//CALL TO MAIN IMAGE LOADER
-std::string main_controller::new_image(std::string image_name, std::string image_path, int room_index, int panel_index, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha){
-    return new_image(image_name, image_path, room_index, panel_index, {0,0,-1,-1}, red, green, blue, alpha);
+std::string main_controller::new_image(std::string image_name, std::string image_path, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha){
+    return new_image(image_name, image_path, {0,0,-1,-1}, red, green, blue, alpha);
 }
 
-std::string main_controller::new_image(std::string image_name, std::string image_path, int room_index, int panel_index){
-    return new_image(image_name, image_path, room_index, panel_index, {0,0,-1,-1});
-}
-
-std::string main_controller::new_image(std::string image_name, std::string image_path, int room_index, SDL_Rect clip_rect, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha){
-    return new_image(image_name, image_path, room_index, -1, clip_rect, red, green, blue, alpha);
-}
-
-std::string main_controller::new_image(std::string image_name, std::string image_path, int room_index, SDL_Rect clip_rect){
-    return new_image(image_name, image_path, room_index, -1, clip_rect);
-}
-
-std::string main_controller::new_image(std::string image_name, std::string image_path, int room_index, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha){
-    return new_image(image_name, image_path, room_index, -1, {0,0,-1,-1}, red, green, blue, alpha);
-}
-
-std::string main_controller::new_image(std::string image_name, std::string image_path, int room_index){
-    return new_image(image_name, image_path, room_index, -1, {0,0,-1,-1});
+std::string main_controller::new_image(std::string image_name, std::string image_path){
+    return new_image(image_name, image_path, {0,0,-1,-1});
 }
 
 //ABOUT THE SAME AS LOADING AN IMAGE, BUT NOW LOADING A BLANK IMAGE
-std::string main_controller::new_blank_image(std::string image_name, SDL_TextureAccess access_type, int room_index, int panel_index, int x_size, int y_size, SDL_Rect clip_rect, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha){
-    room* room_point = NULL;
-    panel_interface* panel_point = NULL;
+std::string main_controller::new_blank_image(std::string image_name, SDL_TextureAccess access_type, int x_size, int y_size, SDL_Rect clip_rect, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha){
     int visual_media_point = -1;
 
     bool image_initiated = false;
 
     //CHECK IF GAME HAS BEEN INITIATED AND KEY NAME IS NOT REGISTERED YET
     if (get_image_point(image_name) == NULL && !is_closed){
-        if ((panel_point = rooms->interface_get(room_index, panel_index)) != NULL){
+        if (panel_point != NULL){
             if (printing) std::cout << "loading blank image of " << image_name << " in panel " << panel_index << " of room " << room_index << std::endl;
 
             //CREATING A NEW IMAGE POINT AT A PANEL
             images.insert(std::make_pair(image_name, new image_point(
-                                         room_index, panel_index,
-                                         (visual_media_point = panel_point->visual_media_new(visual_media(red, green, blue, alpha, total_images))), //CREATING IMAGE
+                                         (visual_media_point = sources->visual_media_new(visual_media(red, green, blue, alpha, total_images))), //CREATING IMAGE
                                          room_index, panel_index,
                                          panel_point->visual_media_spot_new(rendering_bundle(visual_media_point, {clip_rect.x, clip_rect.y, clip_rect.w, clip_rect.h} , 0.0, SDL_FLIP_NONE, total_images, total_images)), //CREATING CLIP
                                          total_images)));
 
             //CREATING A NEW IMAGE SOURCE (IN CASE NO PANEL SPOTS)
             image_sources.insert(std::make_pair(image_name, new image_source_point(
-                                        room_index, panel_index,
                                         visual_media_point)));
 
-            panel_point->visual_media_set_x_size(visual_media_point, x_size);
-            panel_point->visual_media_set_y_size(visual_media_point, y_size);
-            panel_point->visual_media_load_as_blank(visual_media_point, access_type);
+            sources->visual_media_set_x_size(visual_media_point, x_size);
+            sources->visual_media_set_y_size(visual_media_point, y_size);
+            sources->load_as_blank(visual_media_point, access_type);
 
             //sort_and_repoint_images(room_index, panel_index, room_point, panel_point);
 
@@ -667,25 +736,23 @@ std::string main_controller::new_blank_image(std::string image_name, SDL_Texture
             total_images++;
 
             image_initiated = true;
-        } else if ((room_point = rooms->room_get(room_index)) != NULL){
+        } else if (room_point != NULL){
             if (printing) std::cout << "loading blank image of " << image_name << " in room " << room_index << std::endl;
 
             //CREATING A NEW IMAGE POINT AT A ROOM
             images.insert(std::make_pair(image_name, new image_point(
-                                         room_index, -1,
-                                         (visual_media_point = room_point->visual_media_new(visual_media(red, green, blue, alpha, total_images))), //CREATING IMAGE
+                                         (visual_media_point = sources->visual_media_new(visual_media(red, green, blue, alpha, total_images))), //CREATING IMAGE
                                          room_index, -1,
                                          room_point->visual_media_spot_new(rendering_bundle(visual_media_point, {clip_rect.x, clip_rect.y, clip_rect.w, clip_rect.h} , 0.0, SDL_FLIP_NONE, total_images, total_images)), //CREATING CLIP
                                          total_images)));
 
             //CREATING A NEW IMAGE SOURCE (IN CASE NO PANEL SPOTS)
             image_sources.insert(std::make_pair(image_name, new image_source_point(
-                                        room_index, -1,
                                         visual_media_point)));
 
-            room_point->visual_media_set_x_size(visual_media_point, x_size);
-            room_point->visual_media_set_y_size(visual_media_point, y_size);
-            room_point->visual_media_load_as_blank(visual_media_point, access_type);
+            sources->visual_media_set_x_size(visual_media_point, x_size);
+            sources->visual_media_set_y_size(visual_media_point, y_size);
+            sources->load_as_blank(visual_media_point, access_type);
 
             //sort_and_repoint_images(room_index, panel_index, room_point, panel_point);
 
@@ -694,9 +761,6 @@ std::string main_controller::new_blank_image(std::string image_name, SDL_Texture
 
             image_initiated = true;
         }
-
-        room_point = NULL;
-        panel_point = NULL;
     }
 
     if (image_initiated)
@@ -705,32 +769,16 @@ std::string main_controller::new_blank_image(std::string image_name, SDL_Texture
         return "";
 }
 
-std::string main_controller::new_blank_image(std::string image_name, SDL_TextureAccess access_type, int room_index, int panel_index, int x_size, int y_size, SDL_Rect clip_rect){
-    return new_blank_image(image_name, access_type, room_index, panel_index, x_size, y_size, {0, 0, x_size, y_size}, 0xFF, 0xFF, 0xFF, 0xFF);
+std::string main_controller::new_blank_image(std::string image_name, SDL_TextureAccess access_type, int x_size, int y_size, SDL_Rect clip_rect){
+    return new_blank_image(image_name, access_type, x_size, y_size, {0, 0, x_size, y_size}, 0xFF, 0xFF, 0xFF, 0xFF);
 }
 
-std::string main_controller::new_blank_image(std::string image_name, SDL_TextureAccess access_type, int room_index, int panel_index, int x_size, int y_size, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha){
-    return new_blank_image(image_name, access_type, room_index, panel_index, x_size, y_size, {0, 0, x_size, y_size}, red, green, blue, alpha);
+std::string main_controller::new_blank_image(std::string image_name, SDL_TextureAccess access_type, int x_size, int y_size, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha){
+    return new_blank_image(image_name, access_type, x_size, y_size, {0, 0, x_size, y_size}, red, green, blue, alpha);
 }
 
-std::string main_controller::new_blank_image(std::string image_name, SDL_TextureAccess access_type, int room_index, int panel_index, int x_size, int y_size){
-    return new_blank_image(image_name, access_type, room_index, panel_index, x_size, y_size, {0, 0, x_size, y_size});
-}
-
-std::string main_controller::new_blank_image(std::string image_name, SDL_TextureAccess access_type, int room_index, int x_size, int y_size, SDL_Rect clip_rect, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha){
-    return new_blank_image(image_name, access_type, room_index, -1, x_size, y_size, clip_rect, red, green, blue, alpha);
-}
-
-std::string main_controller::new_blank_image(std::string image_name, SDL_TextureAccess access_type, int room_index, int x_size, int y_size, SDL_Rect clip_rect){
-    return new_blank_image(image_name, access_type, room_index, -1, x_size, y_size, clip_rect);
-}
-
-std::string main_controller::new_blank_image(std::string image_name, SDL_TextureAccess access_type, int room_index, int x_size, int y_size, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha){
-    return new_blank_image(image_name, access_type, room_index, -1, x_size, y_size, {0, 0, x_size, y_size}, red, green, blue, alpha);
-}
-
-std::string main_controller::new_blank_image(std::string image_name, SDL_TextureAccess access_type, int room_index, int x_size, int y_size){
-    return new_blank_image(image_name, access_type, room_index, -1, x_size, y_size, {0, 0, x_size, y_size});
+std::string main_controller::new_blank_image(std::string image_name, SDL_TextureAccess access_type, int x_size, int y_size){
+    return new_blank_image(image_name, access_type, x_size, y_size, {0, 0, x_size, y_size});
 }
 
 //TEXT LOAD
@@ -742,9 +790,7 @@ TTF_Font* main_controller::get_font(std::string font_name){
     }
 }
 
-std::string main_controller::new_text(std::string image_name, std::string font, int room_index, int panel_index, std::string text_contents, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha, bool is_wrapping, Uint32 wrap_count){
-    room* room_point = NULL;
-    panel_interface* panel_point = NULL;
+std::string main_controller::new_text(std::string image_name, std::string font, std::string text_contents, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha, bool is_wrapping, Uint32 wrap_count){
     int visual_media_point = -1;
     int spot_point = -1;
     TTF_Font* font_to_use = get_font(font);
@@ -753,26 +799,24 @@ std::string main_controller::new_text(std::string image_name, std::string font, 
 
     //CHECK IF GAME HAS BEEN INITIATED AND KEY NAME IS NOT REGISTERED YET
     if (get_image_point(image_name) == NULL && !is_closed && font_to_use){
-        if ((panel_point = rooms->interface_get(room_index, panel_index)) != NULL){
+        if (panel_point != NULL){
             if (printing) std::cout << "loading text of " << image_name << " in panel " << panel_index << " of room " << room_index << std::endl;
 
             //CREATING A NEW IMAGE POINT AT A PANEL
             images.insert(std::make_pair(image_name, new image_point(
-                                         room_index, panel_index,
-                                         (visual_media_point = panel_point->visual_media_new(visual_media(red, green, blue, alpha, total_images))), //CREATING IMAGE
+                                         (visual_media_point = sources->visual_media_new(visual_media(red, green, blue, alpha, total_images))), //CREATING IMAGE
                                          room_index, panel_index,
                                          spot_point = panel_point->visual_media_spot_new(rendering_bundle(visual_media_point, {0,0,1,1} , 0.0, SDL_FLIP_NONE, total_images, total_images)), //CREATING CLIP
                                          total_images)));
 
             //CREATING A NEW IMAGE SOURCE (IN CASE NO PANEL SPOTS)
             image_sources.insert(std::make_pair(image_name, new image_source_point(
-                                        room_index, panel_index,
                                         visual_media_point)));
 
-            panel_point->visual_media_load_as_text(visual_media_point, font_to_use, text_contents.c_str(), is_wrapping, wrap_count);
+            sources->visual_media_load_as_text(visual_media_point, font_to_use, text_contents.c_str(), is_wrapping, wrap_count);
 
             //ADJUST VISUAL MEDIA SPOT SIZE
-            panel_point->visual_media_spot_set(spot_point,{0,0,panel_point->visual_media_get_x_size(visual_media_point),panel_point->visual_media_get_y_size(visual_media_point)});
+            panel_point->visual_media_spot_set(spot_point,{0,0,sources->visual_media_get_x_size(visual_media_point),sources->visual_media_get_y_size(visual_media_point)});
 
             //sort_and_repoint_images(room_index, panel_index, room_point, panel_point);
 
@@ -780,26 +824,24 @@ std::string main_controller::new_text(std::string image_name, std::string font, 
             total_images++;
 
             image_initiated = true;
-        } else if ((room_point = rooms->room_get(room_index)) != NULL){
+        } else if (room_point != NULL){
             if (printing) std::cout << "loading text of " << image_name << " in room " << room_index << std::endl;
 
             //CREATING A NEW IMAGE POINT AT A ROOM
             images.insert(std::make_pair(image_name, new image_point(
-                                         room_index, -1,
-                                         (visual_media_point = room_point->visual_media_new(visual_media(red, green, blue, alpha, total_images))), //CREATING IMAGE
+                                         (visual_media_point = sources->visual_media_new(visual_media(red, green, blue, alpha, total_images))), //CREATING IMAGE
                                          room_index, -1,
                                          spot_point = room_point->visual_media_spot_new(rendering_bundle(visual_media_point, {0, 0, 1, 1} , 0.0, SDL_FLIP_NONE, total_images, total_images)), //CREATING CLIP
                                          total_images)));
 
             //CREATING A NEW IMAGE SOURCE (IN CASE NO PANEL SPOTS)
             image_sources.insert(std::make_pair(image_name, new image_source_point(
-                                        room_index, -1,
                                         visual_media_point)));
 
-            room_point->visual_media_load_as_text(visual_media_point, font_to_use, text_contents.c_str(), is_wrapping, wrap_count);
+            sources->visual_media_load_as_text(visual_media_point, font_to_use, text_contents.c_str(), is_wrapping, wrap_count);
 
             //ADJUST VISUAL MEDIA SPOT SIZE
-            room_point->visual_media_spot_set(spot_point,{0,0,room_point->visual_media_get_x_size(visual_media_point),room_point->visual_media_get_y_size(visual_media_point)});
+            room_point->visual_media_spot_set(spot_point,{0,0,sources->visual_media_get_x_size(visual_media_point),sources->visual_media_get_y_size(visual_media_point)});
 
             //sort_and_repoint_images(room_index, panel_index, room_point, panel_point);
 
@@ -821,16 +863,8 @@ std::string main_controller::new_text(std::string image_name, std::string font, 
         return "";
 }
 
-std::string main_controller::new_text(std::string image_name, std::string font, int room_index, int panel_index, std::string text_contents, bool is_wrapping, Uint32 wrap_count){
-    return new_text(image_name, font, room_index, panel_index, text_contents, 0xFF, 0xFF, 0xFF, 0xFF, is_wrapping, wrap_count);
-}
-
-std::string main_controller::new_text(std::string image_name, std::string font, int room_index, std::string text_contents, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha, bool is_wrapping, Uint32 wrap_count){
-    return new_text(image_name, font, room_index, -1, text_contents, red, green, blue, alpha, is_wrapping, wrap_count);
-}
-
-std::string main_controller::new_text(std::string image_name, std::string font, int room_index, std::string text_contents, bool is_wrapping, Uint32 wrap_count){
-    return new_text(image_name, font, room_index, -1, text_contents, 0xFF, 0xFF, 0xFF, 0xFF, is_wrapping, wrap_count);
+std::string main_controller::new_text(std::string image_name, std::string font, std::string text_contents, bool is_wrapping, Uint32 wrap_count){
+    return new_text(image_name, font, text_contents, 0xFF, 0xFF, 0xFF, 0xFF, is_wrapping, wrap_count);
 }
 
 //"CREATING" A NEW IMAGE BASED ON A PRE-LOADED ONE
@@ -847,26 +881,26 @@ std::string main_controller::copy_image(std::string image_name, std::string othe
     bool initiation_flag = false;
 
     if (image_to_copy != NULL && !is_closed && get_image_point(image_name) == NULL){
-        if (printing) std::cout << "linking visual media of " << other_image << " to " << image_name << " in room " << image_to_copy->visual_media_room_point << " and in panel " << image_to_copy->visual_media_panel_point << std::endl;
-        room* room_point = rooms->room_get(image_to_copy->visual_media_room_point);
-        panel_interface* panel_point = rooms->interface_get(image_to_copy->visual_media_room_point, image_to_copy->visual_media_panel_point);
+        if (printing) std::cout << "linking visual media of " << other_image << " to " << image_name << " to source " << image_to_copy->visual_media_point << std::endl;
+        room* copy_room_point = rooms->room_get(image_to_copy->render_spot_room_point);
+        panel_interface* copy_panel_point = rooms->interface_get(image_to_copy->render_spot_room_point, image_to_copy->render_spot_panel_point);
 
-        if (panel_point != NULL){
+        if (copy_panel_point != NULL){
             //COPY TO VISUAL MEDIA IN INTERFACE
             if (clip_rect.x < 0 || clip_rect.y < 0 || clip_rect.w < 1 || clip_rect.h < 1){
-                SDL_Rect copy_rect = panel_point->visual_media_spot_get(image_to_copy->render_spot_index_point);
+                SDL_Rect copy_rect = copy_panel_point->visual_media_spot_get(image_to_copy->render_spot_index_point);
 
                 //SET CLIP TO IMAGE TO COPYS CLIP
                 images.insert(std::make_pair(image_name, new image_point(
-                                             image_to_copy->visual_media_room_point, image_to_copy->visual_media_panel_point, image_to_copy->visual_media_index_point,
+                                             image_to_copy->visual_media_point,
                                              image_to_copy->render_spot_room_point, image_to_copy->render_spot_panel_point,
-                                             panel_point->visual_media_spot_new(rendering_bundle(image_to_copy->visual_media_index_point, copy_rect, 0.0, SDL_FLIP_NONE, total_images, total_images)),
+                                             copy_panel_point->visual_media_spot_new(rendering_bundle(image_to_copy->visual_media_point, copy_rect, 0.0, SDL_FLIP_NONE, total_images, total_images)),
                                              total_images)));
             }else
                 images.insert(std::make_pair(image_name, new image_point(
-                                             image_to_copy->visual_media_room_point, image_to_copy->visual_media_panel_point, image_to_copy->visual_media_index_point,
+                                             image_to_copy->visual_media_point,
                                              image_to_copy->render_spot_room_point, image_to_copy->render_spot_panel_point,
-                                             panel_point->visual_media_spot_new(rendering_bundle(image_to_copy->visual_media_index_point, clip_rect, 0.0, SDL_FLIP_NONE, total_images, total_images)),
+                                             copy_panel_point->visual_media_spot_new(rendering_bundle(image_to_copy->visual_media_point, clip_rect, 0.0, SDL_FLIP_NONE, total_images, total_images)),
                                              total_images)));
 
             //sort_and_repoint_images(image_to_copy->visual_media_room_point, image_to_copy->visual_media_index_point, room_point, panel_point);
@@ -875,22 +909,22 @@ std::string main_controller::copy_image(std::string image_name, std::string othe
 
             initiation_flag = true;
 
-        } else if (room_point != NULL){
+        } else if (copy_room_point != NULL){
             //COPY TO VISUAL MEDIA IN ROOM
             if (clip_rect.x < 0 || clip_rect.y < 0 || clip_rect.w < 1 || clip_rect.h < 1){
-                SDL_Rect copy_rect = room_point->visual_media_spot_get(image_to_copy->render_spot_index_point);
+                SDL_Rect copy_rect = copy_room_point->visual_media_spot_get(image_to_copy->render_spot_index_point);
 
                 //SET CLIP TO IMAGE TO COPYS CLIP
                 images.insert(std::make_pair(image_name, new image_point(
-                                             image_to_copy->visual_media_room_point, image_to_copy->visual_media_panel_point, image_to_copy->visual_media_index_point,
+                                             image_to_copy->visual_media_point,
                                              image_to_copy->render_spot_room_point, image_to_copy->render_spot_panel_point,
-                                             room_point->visual_media_spot_new(rendering_bundle(image_to_copy->visual_media_index_point, copy_rect, 0.0, SDL_FLIP_NONE, 0)),
+                                             copy_room_point->visual_media_spot_new(rendering_bundle(image_to_copy->visual_media_point, copy_rect, 0.0, SDL_FLIP_NONE, 0)),
                                              total_images)));
             }else
                 images.insert(std::make_pair(image_name, new image_point(
-                                             image_to_copy->visual_media_room_point, image_to_copy->visual_media_panel_point, image_to_copy->visual_media_index_point,
+                                             image_to_copy->visual_media_point,
                                              image_to_copy->render_spot_room_point, image_to_copy->render_spot_panel_point,
-                                             room_point->visual_media_spot_new(rendering_bundle(image_to_copy->visual_media_index_point, clip_rect, 0.0, SDL_FLIP_NONE, 0)),
+                                             copy_room_point->visual_media_spot_new(rendering_bundle(image_to_copy->visual_media_point, clip_rect, 0.0, SDL_FLIP_NONE, 0)),
                                              total_images)));
 
             //sort_and_repoint_images(image_to_copy->visual_media_room_point, -1, room_point, panel_point);
@@ -899,9 +933,6 @@ std::string main_controller::copy_image(std::string image_name, std::string othe
 
             initiation_flag = true;
         }
-
-        room_point = NULL;
-        panel_point = NULL;
     }
 
     image_to_copy = NULL;
@@ -925,45 +956,35 @@ std::string main_controller::create_image(std::string image_name, std::string im
     Image_Source_Point_Map::iterator image_source_index = image_sources.find(image_source);
 
     if (image_index == images.end() && image_source_index != image_sources.end()){
-        //CREATE A NEW IMAGE BASED ON WHERE THAT IMAGE SOURCE IS IN
-        room* room_obs = NULL;
-        panel_interface* panel_obs = NULL;
-
-        if ((panel_obs = rooms->interface_get(image_source_index->second->visual_media_room_point, image_source_index->second->visual_media_panel_point))){
+        if (panel_point != NULL){
             //CREATING IMAGE IN PANEL
-            images.insert(std::pair<std::string, image_point*>(image_name, new image_point(image_source_index->second->visual_media_room_point,
-                                                                image_source_index->second->visual_media_panel_point,
-                                                                image_source_index->second->visual_media_index_point,
-                                                                image_source_index->second->visual_media_room_point,
-                                                                image_source_index->second->visual_media_panel_point,
-                                                                panel_obs->visual_media_spot_new(rendering_bundle(image_source_index->second->visual_media_index_point, clip_rect, 0.0, SDL_FLIP_NONE, total_images, total_images)),
+            images.insert(std::pair<std::string, image_point*>(image_name, new image_point(image_source_index->second->visual_media_point,
+                                                                room_index,
+                                                                panel_index,
+                                                                panel_point->visual_media_spot_new(rendering_bundle(image_source_index->second->visual_media_point, clip_rect, 0.0, SDL_FLIP_NONE, total_images, total_images)),
                                                                 total_images)));
 
             //std::cout << total_images << " " << panel_obs->visual_media_spot_find(total_images) << std::endl;
 
-            sort_and_repoint_images(image_source_index->second->visual_media_room_point, image_source_index->second->visual_media_index_point, NULL, panel_obs);
+            //sort_and_repoint_images();
 
             total_images++;
 
             create_flag = true;
 
-        } else if ((room_obs = rooms->room_get(image_source_index->second->visual_media_room_point))){
+        } else if (room_point != NULL){
             //CREATING IMAGE IN ROOM
-            images.insert(std::pair<std::string, image_point*>(image_name, new image_point(image_source_index->second->visual_media_room_point,-1,
-                                                                image_source_index->second->visual_media_index_point,
-                                                                image_source_index->second->visual_media_room_point,-1,
-                                                                room_obs->visual_media_spot_new(rendering_bundle(image_source_index->second->visual_media_index_point, clip_rect, 0.0, SDL_FLIP_NONE, total_images, total_images)),
+            images.insert(std::pair<std::string, image_point*>(image_name, new image_point(image_source_index->second->visual_media_point,
+                                                                room_index, -1,
+                                                                room_point->visual_media_spot_new(rendering_bundle(image_source_index->second->visual_media_point, clip_rect, 0.0, SDL_FLIP_NONE, total_images, total_images)),
                                                                 total_images)));
 
-            sort_and_repoint_images(image_source_index->second->visual_media_room_point, -1, room_obs, NULL);
+            //sort_and_repoint_images(image_source_index->second->visual_media_room_point, -1, room_obs, NULL);
 
             total_images++;
 
             create_flag = true;
         }
-
-        room_obs = NULL;
-        panel_obs = NULL;
     }
 
     if (create_flag)
@@ -979,30 +1000,30 @@ void main_controller::remove_image_copy(std::string image_name){
     ///NOTE: THIS ONLY REMOVES THE RENDER SPOT, NOT THE IMAGE SOURCE ITSELF
     if (image_index != images.end()){
         //CLEAR THE SPOT FOR THAT IMAGE FIRST
-        room* room_obs = NULL;
-        panel_interface* panel_obs = NULL;
+        room* temp_room_obs = NULL;
+        panel_interface* temp_panel_obs = NULL;
 
-        if ((panel_obs = rooms->interface_get(images.at(image_name)->render_spot_room_point, images.at(image_name)->render_spot_panel_point))){
+        if ((temp_panel_obs = rooms->interface_get(images.at(image_name)->render_spot_room_point, images.at(image_name)->render_spot_panel_point))){
             if (printing){
-                std::cout << "Removing image " << image_name << " " << images.at(image_name)->visual_media_room_point << " " << images.at(image_name)->visual_media_panel_point << " " << images.at(image_name)->visual_media_index_point << std::endl;
+                std::cout << "Removing image " << image_name << " " << images.at(image_name)->visual_media_point << std::endl;
                 std::cout << "               " << image_name << " " << images.at(image_name)->render_spot_room_point << " " << images.at(image_name)->render_spot_panel_point << " " << images.at(image_name)->render_spot_index_point << std::endl;
             }
 
-            panel_obs->visual_media_spot_remove(images.at(image_name)->render_spot_index_point);
+            temp_panel_obs->visual_media_spot_remove(images.at(image_name)->render_spot_index_point);
 
-            sort_and_repoint_images(images.at(image_name)->visual_media_room_point, images.at(image_name)->visual_media_panel_point,
-                                room_obs, panel_obs);
+            //sort_and_repoint_images(images.at(image_name)->visual_media_room_point, images.at(image_name)->visual_media_panel_point,
+            //                    room_obs, panel_obs);
 
-        } else if ((room_obs = rooms->room_get(images.at(image_name)->render_spot_room_point))){
+        } else if ((temp_room_obs = rooms->room_get(images.at(image_name)->render_spot_room_point))){
             if (printing){
-                std::cout << "Removing image " << image_name << " " << images.at(image_name)->visual_media_room_point << " " << images.at(image_name)->visual_media_index_point << std::endl;
+                std::cout << "Removing image " << image_name << " " << images.at(image_name)->visual_media_point << std::endl;
                 std::cout << "               " << image_name << " " << images.at(image_name)->render_spot_room_point << " " << images.at(image_name)->render_spot_index_point << std::endl;
             }
 
-            room_obs->visual_media_spot_remove(images.at(image_name)->render_spot_index_point);
+            temp_room_obs->visual_media_spot_remove(images.at(image_name)->render_spot_index_point);
 
-            sort_and_repoint_images(images.at(image_name)->visual_media_room_point, -1,
-                                room_obs, NULL);
+            //sort_and_repoint_images(images.at(image_name)->visual_media_room_point, -1,
+            //                    room_obs, NULL);
 
             if (image_index->second->image_animations != NULL){
                 image_index->second->image_animations->set_playing(false);
@@ -1010,8 +1031,8 @@ void main_controller::remove_image_copy(std::string image_name){
             }
         }
 
-        room_obs = NULL;
-        panel_obs = NULL;
+        temp_room_obs = NULL;
+        temp_panel_obs = NULL;
 
         images.erase(image_index);
     }
@@ -1019,25 +1040,25 @@ void main_controller::remove_image_copy(std::string image_name){
 
 std::string main_controller::reload_as_image(std::string image_name, std::string new_image_path, SDL_Rect clip_rect){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
+    room* temp_room_obs = NULL;
+    panel_interface* temp_panel_obs = NULL;
     bool reload_flag = true;
 
     //see if image exists first
     if (image_obs != NULL){
         //check if the image points to a room or a panel and reload as an image (wiping already done in texture loading)
 
-        if ((panel_obs = rooms->interface_get(image_obs->visual_media_room_point, image_obs->visual_media_panel_point)) != NULL){
-            panel_obs->visual_media_load_as_image(image_obs->visual_media_index_point, new_image_path.c_str());
-            panel_obs->visual_media_spot_set(image_obs->render_spot_index_point, clip_rect);
+        if ((temp_panel_obs = rooms->interface_get(image_obs->render_spot_room_point, image_obs->render_spot_panel_point)) != NULL){
+            sources->visual_media_load_as_image(image_obs->visual_media_point, new_image_path.c_str());
+            temp_panel_obs->visual_media_spot_set(image_obs->visual_media_point, clip_rect);
 
-        } else if ((room_obs = rooms->room_get(image_obs->visual_media_room_point)) != NULL){
-            room_obs->visual_media_load_as_image(image_obs->visual_media_index_point, new_image_path.c_str());
-            room_obs->visual_media_spot_set(image_obs->render_spot_index_point, clip_rect);
+        } else if ((temp_room_obs = rooms->room_get(image_obs->render_spot_room_point)) != NULL){
+            sources->visual_media_load_as_image(image_obs->visual_media_point, new_image_path.c_str());
+            temp_room_obs->visual_media_spot_set(image_obs->visual_media_point, clip_rect);
         }
 
-        room_obs = NULL;
-        panel_obs = NULL;
+        temp_panel_obs = NULL;
+        temp_room_obs = NULL;
         image_obs = NULL;
     } else {
         reload_flag = false;
@@ -1052,8 +1073,8 @@ std::string main_controller::reload_as_image(std::string image_name, std::string
 std::string main_controller::reload_as_text(std::string image_name, std::string font, std::string new_text, bool is_wrapping, Uint32 wrap_count){
     image_point* image_obs = get_image_point(image_name);
     TTF_Font* font_found = get_font(font);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
+    room* temp_room_obs = NULL;
+    panel_interface* temp_panel_obs = NULL;
     bool reload_flag = true;
 
     //see if image exists first
@@ -1061,27 +1082,27 @@ std::string main_controller::reload_as_text(std::string image_name, std::string 
         //check if the image points to a room or a panel and reload as text
         SDL_Rect text_rect = {0,0,0,0};
 
-        if ((panel_obs = rooms->interface_get(image_obs->visual_media_room_point, image_obs->visual_media_panel_point)) != NULL){
-            panel_obs->visual_media_load_as_text(image_obs->visual_media_index_point, font_found, new_text.c_str(), is_wrapping, wrap_count);
+        if ((temp_panel_obs = rooms->interface_get(image_obs->render_spot_room_point, image_obs->render_spot_panel_point)) != NULL){
+            sources->visual_media_load_as_text(image_obs->visual_media_point, font_found, new_text.c_str(), is_wrapping, wrap_count);
 
-            text_rect.w = panel_obs->visual_media_get_x_size(image_obs->visual_media_index_point);
-            text_rect.h = panel_obs->visual_media_get_y_size(image_obs->visual_media_index_point);
+            text_rect.w = sources->visual_media_get_x_size(image_obs->visual_media_point);
+            text_rect.h = sources->visual_media_get_y_size(image_obs->visual_media_point);
 
-            panel_obs->visual_media_spot_set(image_obs->render_spot_index_point, text_rect);
+            temp_panel_obs->visual_media_spot_set(image_obs->render_spot_index_point, text_rect);
 
-        } else if ((room_obs = rooms->room_get(image_obs->visual_media_room_point)) != NULL){
-            room_obs->visual_media_load_as_text(image_obs->visual_media_index_point, font_found, new_text.c_str(), is_wrapping, wrap_count);
+        } else if ((temp_room_obs = rooms->room_get(image_obs->render_spot_room_point)) != NULL){
+            sources->visual_media_load_as_text(image_obs->visual_media_point, font_found, new_text.c_str(), is_wrapping, wrap_count);
 
-            text_rect.w = room_obs->visual_media_get_x_size(image_obs->visual_media_index_point);
-            text_rect.h = room_obs->visual_media_get_y_size(image_obs->visual_media_index_point);
+            text_rect.w = sources->visual_media_get_x_size(image_obs->visual_media_point);
+            text_rect.h = sources->visual_media_get_y_size(image_obs->visual_media_point);
 
-            room_obs->visual_media_spot_set(image_obs->render_spot_index_point, text_rect);
+            temp_room_obs->visual_media_spot_set(image_obs->render_spot_index_point, text_rect);
         }
 
         set_blend_mode(image_name, SDL_BLENDMODE_BLEND);
 
-        room_obs = NULL;
-        panel_obs = NULL;
+        temp_room_obs = NULL;
+        temp_panel_obs = NULL;
     } else {
         reload_flag = false;
     }
@@ -1097,28 +1118,15 @@ std::string main_controller::reload_as_text(std::string image_name, std::string 
 
 std::string main_controller::reload_as_blank(std::string image_name, SDL_TextureAccess access_type, int x_size, int y_size){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
     bool reload_flag = true;
 
     //see if image exists first
     if (image_obs != NULL){
         //check if the image points to a room or a panel and reload as a blank image
+        sources->visual_media_set_x_size(image_obs->visual_media_point, x_size);
+        sources->visual_media_set_y_size(image_obs->visual_media_point, y_size);
+        sources->load_as_blank(image_obs->visual_media_point, access_type);
 
-        if ((panel_obs = rooms->interface_get(image_obs->visual_media_room_point, image_obs->visual_media_panel_point)) != NULL){
-            panel_obs->visual_media_set_x_size(image_obs->visual_media_index_point, x_size);
-            panel_obs->visual_media_set_y_size(image_obs->visual_media_index_point, y_size);
-            panel_obs->visual_media_load_as_blank(image_obs->visual_media_index_point, access_type);
-
-        } else if ((room_obs = rooms->room_get(image_obs->visual_media_room_point)) != NULL){
-            room_obs->visual_media_set_x_size(image_obs->visual_media_index_point, x_size);
-            room_obs->visual_media_set_y_size(image_obs->visual_media_index_point, y_size);
-            room_obs->visual_media_load_as_blank(image_obs->visual_media_index_point, access_type);
-        }
-
-        room_obs = NULL;
-        panel_obs = NULL;
-        image_obs = NULL;
     } else {
         reload_flag = false;
     }
@@ -1131,21 +1139,21 @@ std::string main_controller::reload_as_blank(std::string image_name, SDL_Texture
 
 bool main_controller::get_active(std::string image_name){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
+    room* temp_room_obs = NULL;
+    panel_interface* temp_panel_obs = NULL;
     bool active = false;
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->visual_media_room_point, image_obs->visual_media_panel_point)) != NULL){
+        if ((temp_panel_obs = rooms->interface_get(image_obs->render_spot_room_point, image_obs->render_spot_panel_point)) != NULL){
             //RETURN FROM PANEL FOUND
-            active = panel_obs->visual_media_get_active(image_obs->visual_media_index_point);
-        } else if ((room_obs = rooms->room_get(image_obs->visual_media_room_point)) != NULL) {
+            active = temp_panel_obs->visual_media_get_active(image_obs->render_spot_index_point);
+        } else if ((temp_room_obs = rooms->room_get(image_obs->render_spot_room_point)) != NULL) {
             //RETURN FROM ROOM FOUND
-            active = room_obs->visual_media_get_active(image_obs->visual_media_index_point);
+            active = temp_room_obs->visual_media_get_active(image_obs->render_spot_index_point);
         }
 
-        room_obs = NULL;
-        panel_obs = NULL;
+        temp_room_obs = NULL;
+        temp_panel_obs = NULL;
     }
 
     image_obs = NULL;
@@ -1155,21 +1163,21 @@ bool main_controller::get_active(std::string image_name){
 
 bool main_controller::set_active(std::string image_name, bool active){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
+    room* temp_room_obs = NULL;
+    panel_interface* temp_panel_obs = NULL;
     bool return_active = false;
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->render_spot_room_point, image_obs->render_spot_panel_point)) != NULL){
+        if ((temp_panel_obs = rooms->interface_get(image_obs->render_spot_room_point, image_obs->render_spot_panel_point)) != NULL){
             //RETURN FROM PANEL FOUND
-            return_active = panel_obs->visual_media_set_active(image_obs->render_spot_index_point, active);
-        } else if ((room_obs = rooms->room_get(image_obs->render_spot_room_point)) != NULL) {
+            return_active = temp_panel_obs->visual_media_set_active(image_obs->render_spot_index_point, active);
+        } else if ((temp_room_obs = rooms->room_get(image_obs->render_spot_room_point)) != NULL) {
             //RETURN FROM ROOM FOUND
-            return_active = room_obs->visual_media_set_active(image_obs->render_spot_index_point, active);
+            return_active = temp_room_obs->visual_media_set_active(image_obs->render_spot_index_point, active);
         }
 
-        room_obs = NULL;
-        panel_obs = NULL;
+        temp_room_obs = NULL;
+        temp_panel_obs = NULL;
     }
 
     image_obs = NULL;
@@ -1179,20 +1187,10 @@ bool main_controller::set_active(std::string image_name, bool active){
 
 int main_controller::get_image_x_size(std::string image_source_name){
     image_source_point* source_obs = get_image_source_point(image_source_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
     int return_x = -1;
 
     if (source_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(source_obs->visual_media_room_point, source_obs->visual_media_panel_point)) != NULL){
-            return_x = panel_obs->visual_media_get_x_size(source_obs->visual_media_index_point);
-        } else if ((room_obs = rooms->room_get(source_obs->visual_media_room_point)) != NULL) {
-            //RETURN FROM ROOM FOUND
-            return_x = room_obs->visual_media_get_x_size(source_obs->visual_media_index_point);
-        }
-
-        room_obs = NULL;
-        panel_obs = NULL;
+        return_x = sources->visual_media_get_x_size(source_obs->visual_media_point);
     }
 
     return return_x;
@@ -1200,20 +1198,10 @@ int main_controller::get_image_x_size(std::string image_source_name){
 
 int main_controller::get_image_y_size(std::string image_source_name){
     image_source_point* source_obs = get_image_source_point(image_source_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
     int return_y = -1;
 
     if (source_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(source_obs->visual_media_room_point, source_obs->visual_media_panel_point)) != NULL){
-            return_y = panel_obs->visual_media_get_y_size(source_obs->visual_media_index_point);
-        } else if ((room_obs = rooms->room_get(source_obs->visual_media_room_point)) != NULL) {
-            //RETURN FROM ROOM FOUND
-            return_y = room_obs->visual_media_get_y_size(source_obs->visual_media_index_point);
-        }
-
-        room_obs = NULL;
-        panel_obs = NULL;
+        return_y = sources->visual_media_get_y_size(source_obs->visual_media_point);
     }
 
     return return_y;
@@ -1221,21 +1209,21 @@ int main_controller::get_image_y_size(std::string image_source_name){
 
 SDL_Rect main_controller::get_spot(std::string image_name){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
+    room* temp_room_obs = NULL;
+    panel_interface* temp_panel_obs = NULL;
     SDL_Rect return_spot = {-1,-1,-1,-1};
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->render_spot_room_point, image_obs->render_spot_panel_point)) != NULL){
+        if ((temp_panel_obs = rooms->interface_get(image_obs->render_spot_room_point, image_obs->render_spot_panel_point)) != NULL){
             //RETURN FROM PANEL FOUND
-            return_spot = panel_obs->visual_media_spot_get(image_obs->render_spot_index_point);
-        } else if ((room_obs = rooms->room_get(image_obs->render_spot_room_point)) != NULL) {
+            return_spot = temp_panel_obs->visual_media_spot_get(image_obs->render_spot_index_point);
+        } else if ((temp_room_obs = rooms->room_get(image_obs->render_spot_room_point)) != NULL) {
             //RETURN FROM ROOM FOUND
-            return_spot = room_obs->visual_media_spot_get(image_obs->render_spot_index_point);
+            return_spot = temp_room_obs->visual_media_spot_get(image_obs->render_spot_index_point);
         }
 
-        room_obs = NULL;
-        panel_obs = NULL;
+        temp_room_obs = NULL;
+        temp_panel_obs = NULL;
     }
 
     image_obs = NULL;
@@ -1245,20 +1233,20 @@ SDL_Rect main_controller::get_spot(std::string image_name){
 
 void main_controller::set_spot(std::string image_name, SDL_Rect new_spot){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
+    room* temp_room_obs = NULL;
+    panel_interface* temp_panel_obs = NULL;
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->render_spot_room_point, image_obs->render_spot_panel_point)) != NULL){
+        if ((temp_panel_obs = rooms->interface_get(image_obs->render_spot_room_point, image_obs->render_spot_panel_point)) != NULL){
             //RETURN FROM PANEL FOUND
-            panel_obs->visual_media_spot_set(image_obs->render_spot_index_point, new_spot);
-        } else if ((room_obs = rooms->room_get(image_obs->render_spot_room_point)) != NULL) {
+            temp_panel_obs->visual_media_spot_set(image_obs->render_spot_index_point, new_spot);
+        } else if ((temp_room_obs = rooms->room_get(image_obs->render_spot_room_point)) != NULL) {
             //RETURN FROM ROOM FOUND
-            room_obs->visual_media_spot_set(image_obs->render_spot_index_point, new_spot);
+            temp_room_obs->visual_media_spot_set(image_obs->render_spot_index_point, new_spot);
         }
 
-        room_obs = NULL;
-        panel_obs = NULL;
+        temp_room_obs = NULL;
+        temp_panel_obs = NULL;
     }
 
     image_obs = NULL;
@@ -1266,21 +1254,21 @@ void main_controller::set_spot(std::string image_name, SDL_Rect new_spot){
 
 int main_controller::add_point(std::string image_name, int x, int y){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
+    room* temp_room_obs = NULL;
+    panel_interface* temp_panel_obs = NULL;
     int point_index = -1;
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->render_spot_room_point, image_obs->render_spot_panel_point)) != NULL){
+        if ((temp_panel_obs = rooms->interface_get(image_obs->render_spot_room_point, image_obs->render_spot_panel_point)) != NULL){
             //RETURN FROM PANEL FOUND
-            point_index = panel_obs->visual_media_point_add(image_obs->render_spot_index_point, x, y);
-        } else if ((room_obs = rooms->room_get(image_obs->render_spot_room_point)) != NULL) {
+            point_index = temp_panel_obs->visual_media_point_add(image_obs->render_spot_index_point, x, y);
+        } else if ((temp_room_obs = rooms->room_get(image_obs->render_spot_room_point)) != NULL) {
             //RETURN FROM ROOM FOUND
-            point_index = room_obs->visual_media_point_add(image_obs->render_spot_index_point, x, y);
+            point_index = temp_room_obs->visual_media_point_add(image_obs->render_spot_index_point, x, y);
         }
 
-        room_obs = NULL;
-        panel_obs = NULL;
+        temp_room_obs = NULL;
+        temp_panel_obs = NULL;
     }
 
     image_obs = NULL;
@@ -1290,21 +1278,21 @@ int main_controller::add_point(std::string image_name, int x, int y){
 
 point* main_controller::get_point(std::string image_name, int point_index){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
+    room* temp_room_obs = NULL;
+    panel_interface* temp_panel_obs = NULL;
     point* return_point = NULL;
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->render_spot_room_point, image_obs->render_spot_panel_point)) != NULL){
+        if ((temp_panel_obs = rooms->interface_get(image_obs->render_spot_room_point, image_obs->render_spot_panel_point)) != NULL){
             //RETURN FROM PANEL FOUND
-            return_point = panel_obs->visual_media_point_get(image_obs->render_spot_index_point, point_index);
-        } else if ((room_obs = rooms->room_get(image_obs->render_spot_room_point)) != NULL) {
+            return_point = temp_panel_obs->visual_media_point_get(image_obs->render_spot_index_point, point_index);
+        } else if ((temp_room_obs = rooms->room_get(image_obs->render_spot_room_point)) != NULL) {
             //RETURN FROM ROOM FOUND
-            return_point = room_obs->visual_media_point_get(image_obs->render_spot_index_point);
+            return_point = temp_room_obs->visual_media_point_get(image_obs->render_spot_index_point);
         }
 
-        room_obs = NULL;
-        panel_obs = NULL;
+        temp_room_obs = NULL;
+        temp_panel_obs = NULL;
     }
 
     image_obs = NULL;
@@ -1314,22 +1302,22 @@ point* main_controller::get_point(std::string image_name, int point_index){
 
 void main_controller::set_point(std::string image_name, int point_index, int new_x, int new_y){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
+    room* temp_room_obs = NULL;
+    panel_interface* temp_panel_obs = NULL;
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->render_spot_room_point, image_obs->render_spot_panel_point)) != NULL){
+        if ((temp_panel_obs = rooms->interface_get(image_obs->render_spot_room_point, image_obs->render_spot_panel_point)) != NULL){
             //RETURN FROM PANEL FOUND
-            panel_obs->visual_media_point_get(image_obs->render_spot_index_point)->set_x(new_x);
-            panel_obs->visual_media_point_get(image_obs->render_spot_index_point)->set_y(new_y);
-        } else if ((room_obs = rooms->room_get(image_obs->render_spot_room_point)) != NULL) {
+            temp_panel_obs->visual_media_point_get(image_obs->render_spot_index_point)->set_x(new_x);
+            temp_panel_obs->visual_media_point_get(image_obs->render_spot_index_point)->set_y(new_y);
+        } else if ((temp_room_obs = rooms->room_get(image_obs->render_spot_room_point)) != NULL) {
             //RETURN FROM ROOM FOUND
-            room_obs->visual_media_point_get(image_obs->render_spot_index_point)->set_x(new_x);
-            room_obs->visual_media_point_get(image_obs->render_spot_index_point)->set_y(new_y);
+            temp_room_obs->visual_media_point_get(image_obs->render_spot_index_point)->set_x(new_x);
+            temp_room_obs->visual_media_point_get(image_obs->render_spot_index_point)->set_y(new_y);
         }
 
-        room_obs = NULL;
-        panel_obs = NULL;
+        temp_room_obs = NULL;
+        temp_panel_obs = NULL;
     }
 
     image_obs = NULL;
@@ -1337,26 +1325,26 @@ void main_controller::set_point(std::string image_name, int point_index, int new
 
 void main_controller::clear_points(std::string image_name){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
+    room* temp_room_obs = NULL;
+    panel_interface* temp_panel_obs = NULL;
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->render_spot_room_point, image_obs->render_spot_panel_point)) != NULL){
+        if ((temp_panel_obs = rooms->interface_get(image_obs->render_spot_room_point, image_obs->render_spot_panel_point)) != NULL){
             //RETURN FROM PANEL FOUND
-            panel_obs->visual_media_point_clear(image_obs->render_spot_index_point);
-        } else if ((room_obs = rooms->room_get(image_obs->render_spot_room_point)) != NULL) {
+            temp_panel_obs->visual_media_point_clear(image_obs->render_spot_index_point);
+        } else if ((temp_room_obs = rooms->room_get(image_obs->render_spot_room_point)) != NULL) {
             //RETURN FROM ROOM FOUND
-            room_obs->visual_media_point_clear(image_obs->render_spot_index_point);
+            temp_room_obs->visual_media_point_clear(image_obs->render_spot_index_point);
         }
 
-        room_obs = NULL;
-        panel_obs = NULL;
+        temp_room_obs = NULL;
+        temp_panel_obs = NULL;
     }
 
     image_obs = NULL;
 }
 
-void main_controller::sort_and_repoint_images(int room_index, int panel_index, room* room_point, panel_interface* panel_point){
+void main_controller::sort_and_repoint_images(){
     ///***THIS IS SUPPOSING THAT THE ROOM OR PANEL POINT WAS ALREADY FOUND AND UNCHANGED
     if (panel_point != NULL){
         //SORT AND REPOINT THAT PANEL
@@ -1384,21 +1372,21 @@ void main_controller::sort_and_repoint_images(int room_index, int panel_index, r
 
 int main_controller::get_layer(std::string image_name){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
+    room* temp_room_obs = NULL;
+    panel_interface* temp_panel_obs = NULL;
     int return_layer = -1;
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->render_spot_room_point, image_obs->render_spot_panel_point)) != NULL){
+        if ((temp_panel_obs = rooms->interface_get(image_obs->render_spot_room_point, image_obs->render_spot_panel_point)) != NULL){
             //RETURN FROM PANEL FOUND
-            return_layer = panel_obs->visual_media_get_rendering_layer(image_obs->render_spot_index_point);
-        } else if ((room_obs = rooms->room_get(image_obs->render_spot_room_point)) != NULL) {
+            return_layer = temp_panel_obs->visual_media_get_rendering_layer(image_obs->render_spot_index_point);
+        } else if ((temp_room_obs = rooms->room_get(image_obs->render_spot_room_point)) != NULL) {
             //RETURN FROM ROOM FOUND
-            return_layer = room_obs->visual_media_get_rendering_layer(image_obs->render_spot_index_point);
+            return_layer = temp_room_obs->visual_media_get_rendering_layer(image_obs->render_spot_index_point);
         }
 
-        room_obs = NULL;
-        panel_obs = NULL;
+        temp_room_obs = NULL;
+        temp_panel_obs = NULL;
     }
 
     image_obs = NULL;
@@ -1408,22 +1396,22 @@ int main_controller::get_layer(std::string image_name){
 
 void main_controller::set_layer(std::string image_name, int new_layer){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
+    room* temp_room_obs = NULL;
+    panel_interface* temp_panel_obs = NULL;
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->render_spot_room_point, image_obs->render_spot_panel_point)) != NULL){
+        if ((temp_panel_obs = rooms->interface_get(image_obs->render_spot_room_point, image_obs->render_spot_panel_point)) != NULL){
             //SET LAYER, SORT, REPOINT FROM PANEL FOUND
-            panel_obs->visual_media_set_rendering_layer(image_obs->render_spot_index_point, new_layer);
-            sort_and_repoint_images(image_obs->render_spot_room_point, image_obs->render_spot_panel_point, NULL, panel_obs);
-        } else if ((room_obs = rooms->room_get(image_obs->render_spot_room_point)) != NULL) {
+            temp_panel_obs->visual_media_set_rendering_layer(image_obs->render_spot_index_point, new_layer);
+            //sort_and_repoint_images(image_obs->render_spot_room_point, image_obs->render_spot_panel_point, NULL, panel_obs);
+        } else if ((temp_room_obs = rooms->room_get(image_obs->render_spot_room_point)) != NULL) {
             //SET LAYER, SORT, REPOINT FROM PANEL FOUND
-            room_obs->visual_media_set_rendering_layer(image_obs->render_spot_index_point, new_layer);
-            sort_and_repoint_images(image_obs->render_spot_room_point, image_obs->render_spot_panel_point, room_obs, NULL);
+            temp_room_obs->visual_media_set_rendering_layer(image_obs->render_spot_index_point, new_layer);
+            //sort_and_repoint_images(image_obs->render_spot_room_point, image_obs->render_spot_panel_point, room_obs, NULL);
         }
 
-        room_obs = NULL;
-        panel_obs = NULL;
+        temp_room_obs = NULL;
+        temp_panel_obs = NULL;
     }
 
     image_obs = NULL;
@@ -1431,21 +1419,21 @@ void main_controller::set_layer(std::string image_name, int new_layer){
 
 int main_controller::get_flip(std::string image_name){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
+    room* temp_room_obs = NULL;
+    panel_interface* temp_panel_obs = NULL;
     int return_flip = SDL_FLIP_NONE;
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->render_spot_room_point, image_obs->render_spot_panel_point)) != NULL){
+        if ((temp_panel_obs = rooms->interface_get(image_obs->render_spot_room_point, image_obs->render_spot_panel_point)) != NULL){
             //RETURN FROM PANEL FOUND
-            return_flip = panel_obs->visual_media_get_flip(image_obs->render_spot_index_point);
-        } else if ((room_obs = rooms->room_get(image_obs->render_spot_room_point)) != NULL) {
+            return_flip = temp_panel_obs->visual_media_get_flip(image_obs->render_spot_index_point);
+        } else if ((temp_room_obs = rooms->room_get(image_obs->render_spot_room_point)) != NULL) {
             //RETURN FROM ROOM FOUND
-            return_flip = room_obs->visual_media_get_flip(image_obs->render_spot_index_point);
+            return_flip = temp_room_obs->visual_media_get_flip(image_obs->render_spot_index_point);
         }
 
-        room_obs = NULL;
-        panel_obs = NULL;
+        temp_room_obs = NULL;
+        temp_panel_obs = NULL;
     }
 
     image_obs = NULL;
@@ -1455,20 +1443,20 @@ int main_controller::get_flip(std::string image_name){
 
 void main_controller::set_flip(std::string image_name, int new_flip){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
+    room* temp_room_obs = NULL;
+    panel_interface* temp_panel_obs = NULL;
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->render_spot_room_point, image_obs->render_spot_panel_point)) != NULL){
+        if ((temp_panel_obs = rooms->interface_get(image_obs->render_spot_room_point, image_obs->render_spot_panel_point)) != NULL){
             //RETURN FROM PANEL FOUND
-            panel_obs->visual_media_set_flip(image_obs->render_spot_index_point, SDL_RendererFlip(new_flip));
-        } else if ((room_obs = rooms->room_get(image_obs->render_spot_room_point)) != NULL) {
+            temp_panel_obs->visual_media_set_flip(image_obs->render_spot_index_point, SDL_RendererFlip(new_flip));
+        } else if ((temp_room_obs = rooms->room_get(image_obs->render_spot_room_point)) != NULL) {
             //RETURN FROM ROOM FOUND
-            room_obs->visual_media_set_flip(image_obs->render_spot_index_point, SDL_RendererFlip(new_flip));
+            temp_room_obs->visual_media_set_flip(image_obs->render_spot_index_point, SDL_RendererFlip(new_flip));
         }
 
-        room_obs = NULL;
-        panel_obs = NULL;
+        temp_room_obs = NULL;
+        temp_panel_obs = NULL;
     }
 
     image_obs = NULL;
@@ -1476,21 +1464,21 @@ void main_controller::set_flip(std::string image_name, int new_flip){
 
 double main_controller::get_rotation(std::string image_name){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
+    room* temp_room_obs = NULL;
+    panel_interface* temp_panel_obs = NULL;
     double return_rotation = 0.0;
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->render_spot_room_point, image_obs->render_spot_panel_point)) != NULL){
+        if ((temp_panel_obs = rooms->interface_get(image_obs->render_spot_room_point, image_obs->render_spot_panel_point)) != NULL){
             //RETURN FROM PANEL FOUND
-            return_rotation = panel_obs->visual_media_get_rotation(image_obs->render_spot_index_point);
-        } else if ((room_obs = rooms->room_get(image_obs->render_spot_room_point)) != NULL) {
+            return_rotation = temp_panel_obs->visual_media_get_rotation(image_obs->render_spot_index_point);
+        } else if ((temp_room_obs = rooms->room_get(image_obs->render_spot_room_point)) != NULL) {
             //RETURN FROM ROOM FOUND
-            return_rotation = room_obs->visual_media_get_rotation(image_obs->render_spot_index_point);
+            return_rotation = temp_room_obs->visual_media_get_rotation(image_obs->render_spot_index_point);
         }
 
-        room_obs = NULL;
-        panel_obs = NULL;
+        temp_room_obs = NULL;
+        temp_panel_obs = NULL;
     }
 
     image_obs = NULL;
@@ -1500,20 +1488,20 @@ double main_controller::get_rotation(std::string image_name){
 
 void main_controller::set_rotation(std::string image_name, double new_rotation){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
+    room* temp_room_obs = NULL;
+    panel_interface* temp_panel_obs = NULL;
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->render_spot_room_point, image_obs->render_spot_panel_point)) != NULL){
+        if ((temp_panel_obs = rooms->interface_get(image_obs->render_spot_room_point, image_obs->render_spot_panel_point)) != NULL){
             //RETURN FROM PANEL FOUND
-            panel_obs->visual_media_set_rotation(image_obs->render_spot_index_point, new_rotation);
-        } else if ((room_obs = rooms->room_get(image_obs->render_spot_room_point)) != NULL) {
+            temp_panel_obs->visual_media_set_rotation(image_obs->render_spot_index_point, new_rotation);
+        } else if ((temp_room_obs = rooms->room_get(image_obs->render_spot_room_point)) != NULL) {
             //RETURN FROM ROOM FOUND
-            room_obs->visual_media_set_rotation(image_obs->render_spot_index_point, new_rotation);
+            temp_room_obs->visual_media_set_rotation(image_obs->render_spot_index_point, new_rotation);
         }
 
-        room_obs = NULL;
-        panel_obs = NULL;
+        temp_room_obs = NULL;
+        temp_panel_obs = NULL;
     }
 
     image_obs = NULL;
@@ -1521,21 +1509,10 @@ void main_controller::set_rotation(std::string image_name, double new_rotation){
 
 SDL_Color main_controller::get_color(std::string image_name){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
     SDL_Color return_color = {0x00,0x00,0x00,0x00};
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->visual_media_room_point, image_obs->visual_media_panel_point)) != NULL){
-            //RETURN FROM PANEL FOUND
-            return_color = panel_obs->visual_media_get_color(image_obs->visual_media_index_point);
-        } else if ((room_obs = rooms->room_get(image_obs->visual_media_room_point)) != NULL) {
-            //RETURN FROM ROOM FOUND
-            return_color = room_obs->visual_media_get_color(image_obs->visual_media_index_point);
-        }
-
-        room_obs = NULL;
-        panel_obs = NULL;
+        return_color = sources->visual_media_get_color(image_obs->visual_media_point);
     }
 
     image_obs = NULL;
@@ -1545,20 +1522,9 @@ SDL_Color main_controller::get_color(std::string image_name){
 
 void main_controller::set_color(std::string image_name, SDL_Color new_color){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->visual_media_room_point, image_obs->visual_media_panel_point)) != NULL){
-            //RETURN FROM PANEL FOUND
-            panel_obs->visual_media_set_color(image_obs->visual_media_index_point, new_color.r, new_color.g, new_color.b, new_color.a);
-        } else if ((room_obs = rooms->room_get(image_obs->visual_media_room_point)) != NULL) {
-            //RETURN FROM ROOM FOUND
-            room_obs->visual_media_set_color(image_obs->visual_media_index_point, new_color.r, new_color.g, new_color.b, new_color.a);
-        }
-
-        room_obs = NULL;
-        panel_obs = NULL;
+        sources->visual_media_set_color(image_obs->visual_media_point, new_color.r, new_color.g, new_color.b, new_color.a);
     }
 
     image_obs = NULL;
@@ -1566,21 +1532,11 @@ void main_controller::set_color(std::string image_name, SDL_Color new_color){
 
 Uint8 main_controller::get_red(std::string image_name){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
+
     Uint8 return_red = 0x00;
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->visual_media_room_point, image_obs->visual_media_panel_point)) != NULL){
-            //RETURN FROM PANEL FOUND
-            return_red = panel_obs->visual_media_get_red(image_obs->visual_media_index_point);
-        } else if ((room_obs = rooms->room_get(image_obs->visual_media_room_point)) != NULL) {
-            //RETURN FROM ROOM FOUND
-            return_red = room_obs->visual_media_get_red(image_obs->visual_media_index_point);
-        }
-
-        room_obs = NULL;
-        panel_obs = NULL;
+        return_red = sources->visual_media_get_red(image_obs->visual_media_point);
     }
 
     image_obs = NULL;
@@ -1590,20 +1546,9 @@ Uint8 main_controller::get_red(std::string image_name){
 
 void main_controller::set_red(std::string image_name, Uint8 new_red){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->visual_media_room_point, image_obs->visual_media_panel_point)) != NULL){
-            //RETURN FROM PANEL FOUND
-            panel_obs->visual_media_set_red(image_obs->visual_media_index_point, new_red);
-        } else if ((room_obs = rooms->room_get(image_obs->visual_media_room_point)) != NULL) {
-            //RETURN FROM ROOM FOUND
-            room_obs->visual_media_set_red(image_obs->visual_media_index_point, new_red);
-        }
-
-        room_obs = NULL;
-        panel_obs = NULL;
+        sources->visual_media_set_red(image_obs->visual_media_point, new_red);
     }
 
     image_obs = NULL;
@@ -1611,21 +1556,10 @@ void main_controller::set_red(std::string image_name, Uint8 new_red){
 
 Uint8 main_controller::get_green(std::string image_name){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
     Uint8 return_green = 0x00;
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->visual_media_room_point, image_obs->visual_media_panel_point)) != NULL){
-            //RETURN FROM PANEL FOUND
-            return_green = panel_obs->visual_media_get_green(image_obs->visual_media_index_point);
-        } else if ((room_obs = rooms->room_get(image_obs->visual_media_room_point)) != NULL) {
-            //RETURN FROM ROOM FOUND
-            return_green = room_obs->visual_media_get_green(image_obs->visual_media_index_point);
-        }
-
-        room_obs = NULL;
-        panel_obs = NULL;
+        return_green = sources->visual_media_get_green(image_obs->visual_media_point);
     }
 
     image_obs = NULL;
@@ -1635,20 +1569,9 @@ Uint8 main_controller::get_green(std::string image_name){
 
 void main_controller::set_green(std::string image_name, Uint8 new_green){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->visual_media_room_point, image_obs->visual_media_panel_point)) != NULL){
-            //RETURN FROM PANEL FOUND
-            panel_obs->visual_media_set_green(image_obs->visual_media_index_point, new_green);
-        } else if ((room_obs = rooms->room_get(image_obs->visual_media_room_point)) != NULL) {
-            //RETURN FROM ROOM FOUND
-            room_obs->visual_media_set_green(image_obs->visual_media_index_point, new_green);
-        }
-
-        room_obs = NULL;
-        panel_obs = NULL;
+        sources->visual_media_set_green(image_obs->visual_media_point, new_green);
     }
 
     image_obs = NULL;
@@ -1656,21 +1579,10 @@ void main_controller::set_green(std::string image_name, Uint8 new_green){
 
 Uint8 main_controller::get_blue(std::string image_name){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
     Uint8 return_blue = 0x00;
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->visual_media_room_point, image_obs->visual_media_panel_point)) != NULL){
-            //RETURN FROM PANEL FOUND
-            return_blue = panel_obs->visual_media_get_blue(image_obs->visual_media_index_point);
-        } else if ((room_obs = rooms->room_get(image_obs->visual_media_room_point)) != NULL) {
-            //RETURN FROM ROOM FOUND
-            return_blue = room_obs->visual_media_get_blue(image_obs->visual_media_index_point);
-        }
-
-        room_obs = NULL;
-        panel_obs = NULL;
+        return_blue = sources->visual_media_get_blue(image_obs->visual_media_point);
     }
 
     image_obs = NULL;
@@ -1680,20 +1592,9 @@ Uint8 main_controller::get_blue(std::string image_name){
 
 void main_controller::set_blue(std::string image_name, Uint8 new_blue){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->visual_media_room_point, image_obs->visual_media_panel_point)) != NULL){
-            //RETURN FROM PANEL FOUND
-            panel_obs->visual_media_set_blue(image_obs->visual_media_index_point, new_blue);
-        } else if ((room_obs = rooms->room_get(image_obs->visual_media_room_point)) != NULL) {
-            //RETURN FROM ROOM FOUND
-            room_obs->visual_media_set_blue(image_obs->visual_media_index_point, new_blue);
-        }
-
-        room_obs = NULL;
-        panel_obs = NULL;
+        sources->visual_media_set_blue(image_obs->visual_media_point, new_blue);
     }
 
     image_obs = NULL;
@@ -1701,21 +1602,10 @@ void main_controller::set_blue(std::string image_name, Uint8 new_blue){
 
 Uint8 main_controller::get_alpha(std::string image_name){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
     Uint8 return_alpha = 0x00;
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->visual_media_room_point, image_obs->visual_media_panel_point)) != NULL){
-            //RETURN FROM PANEL FOUND
-            return_alpha = panel_obs->visual_media_get_alpha(image_obs->visual_media_index_point);
-        } else if ((room_obs = rooms->room_get(image_obs->visual_media_room_point)) != NULL) {
-            //RETURN FROM ROOM FOUND
-            return_alpha = room_obs->visual_media_get_alpha(image_obs->visual_media_index_point);
-        }
-
-        room_obs = NULL;
-        panel_obs = NULL;
+        return_alpha = sources->visual_media_get_alpha(image_obs->visual_media_point);
     }
 
     image_obs = NULL;
@@ -1725,20 +1615,9 @@ Uint8 main_controller::get_alpha(std::string image_name){
 
 void main_controller::set_alpha(std::string image_name, Uint8 new_alpha){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->visual_media_room_point, image_obs->visual_media_panel_point)) != NULL){
-            //RETURN FROM PANEL FOUND
-            panel_obs->visual_media_set_alpha(image_obs->visual_media_index_point, new_alpha);
-        } else if ((room_obs = rooms->room_get(image_obs->visual_media_room_point)) != NULL) {
-            //RETURN FROM ROOM FOUND
-            room_obs->visual_media_set_alpha(image_obs->visual_media_index_point, new_alpha);
-        }
-
-        room_obs = NULL;
-        panel_obs = NULL;
+        sources->visual_media_set_alpha(image_obs->visual_media_point, new_alpha);
     }
 
     image_obs = NULL;
@@ -1746,20 +1625,9 @@ void main_controller::set_alpha(std::string image_name, Uint8 new_alpha){
 
 void main_controller::set_blend_mode(std::string image_name, SDL_BlendMode blend_mode){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->visual_media_room_point, image_obs->visual_media_panel_point)) != NULL){
-            //RETURN FROM PANEL FOUND
-            panel_obs->visual_media_set_blend_mode(image_obs->visual_media_index_point, blend_mode);
-        } else if ((room_obs = rooms->room_get(image_obs->visual_media_room_point)) != NULL) {
-            //RETURN FROM ROOM FOUND
-            room_obs->visual_media_set_blend_mode(image_obs->visual_media_index_point, blend_mode);
-        }
-
-        room_obs = NULL;
-        panel_obs = NULL;
+        sources->visual_media_set_blend_mode(image_obs->visual_media_point, blend_mode);
     }
 
     image_obs = NULL;
@@ -1767,21 +1635,10 @@ void main_controller::set_blend_mode(std::string image_name, SDL_BlendMode blend
 
 bool main_controller::lock_image(std::string image_name, bool lock){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
     bool return_lock = false;
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->visual_media_room_point, image_obs->visual_media_panel_point)) != NULL){
-            //RETURN FROM PANEL FOUND
-            return_lock = panel_obs->visual_media_set_locked(image_obs->visual_media_index_point, lock);
-        } else if ((room_obs = rooms->room_get(image_obs->visual_media_room_point)) != NULL) {
-            //RETURN FROM ROOM FOUND
-            return_lock = room_obs->visual_media_set_locked(image_obs->visual_media_index_point, lock);
-        }
-
-        room_obs = NULL;
-        panel_obs = NULL;
+        return_lock = sources->visual_media_set_locked(image_obs->visual_media_point, lock);
     }
 
     image_obs = NULL;
@@ -1791,21 +1648,10 @@ bool main_controller::lock_image(std::string image_name, bool lock){
 
 SDL_Rect main_controller::get_lock_rect(std::string image_name){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
     SDL_Rect return_rect = {-1,-1,-1,-1};
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->visual_media_room_point, image_obs->visual_media_panel_point)) != NULL){
-            //RETURN FROM PANEL FOUND
-            return_rect = panel_obs->visual_media_get_lock_rect(image_obs->visual_media_index_point);
-        } else if ((room_obs = rooms->room_get(image_obs->visual_media_room_point)) != NULL) {
-            //RETURN FROM ROOM FOUND
-            return_rect = room_obs->visual_media_get_lock_rect(image_obs->visual_media_index_point);
-        }
-
-        room_obs = NULL;
-        panel_obs = NULL;
+        return_rect = sources->visual_media_get_lock_rect(image_obs->visual_media_point);
     }
 
     image_obs = NULL;
@@ -1815,20 +1661,9 @@ SDL_Rect main_controller::get_lock_rect(std::string image_name){
 
 void main_controller::set_lock_rect(std::string image_name, SDL_Rect new_lock_rect){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->visual_media_room_point, image_obs->visual_media_panel_point)) != NULL){
-            //RETURN FROM PANEL FOUND
-            panel_obs->visual_media_set_lock_rect(image_obs->visual_media_index_point, new_lock_rect);
-        } else if ((room_obs = rooms->room_get(image_obs->visual_media_room_point)) != NULL) {
-            //RETURN FROM ROOM FOUND
-            room_obs->visual_media_set_lock_rect(image_obs->visual_media_index_point, new_lock_rect);
-        }
-
-        room_obs = NULL;
-        panel_obs = NULL;
+        sources->visual_media_set_lock_rect(image_obs->visual_media_point, new_lock_rect);
     }
 
     image_obs = NULL;
@@ -1836,21 +1671,10 @@ void main_controller::set_lock_rect(std::string image_name, SDL_Rect new_lock_re
 
 void* main_controller::get_pixels(std::string image_name){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
     void* return_pixels = NULL;
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->visual_media_room_point, image_obs->visual_media_panel_point)) != NULL){
-            //RETURN FROM PANEL FOUND
-            return_pixels = panel_obs->visual_media_get_pixels(image_obs->visual_media_index_point);
-        } else if ((room_obs = rooms->room_get(image_obs->visual_media_room_point)) != NULL) {
-            //RETURN FROM ROOM FOUND
-            return_pixels = room_obs->visual_media_get_pixels(image_obs->visual_media_index_point);
-        }
-
-        room_obs = NULL;
-        panel_obs = NULL;
+        return_pixels = sources->visual_media_get_pixels(image_obs->visual_media_point);
     }
 
     image_obs = NULL;
@@ -1860,21 +1684,10 @@ void* main_controller::get_pixels(std::string image_name){
 
 Uint32 main_controller::get_pixel(std::string image_name, int x, int y){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
     Uint32 return_pixel = 0x00000000;
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->visual_media_room_point, image_obs->visual_media_panel_point)) != NULL){
-            //RETURN FROM PANEL FOUND
-            return_pixel = panel_obs->visual_media_get_pixel(image_obs->visual_media_index_point, x, y);
-        } else if ((room_obs = rooms->room_get(image_obs->visual_media_room_point)) != NULL) {
-            //RETURN FROM ROOM FOUND
-            return_pixel = room_obs->visual_media_get_pixel(image_obs->visual_media_index_point, x, y);
-        }
-
-        room_obs = NULL;
-        panel_obs = NULL;
+        return_pixel = sources->visual_media_get_pixel(image_obs->visual_media_point, x, y);
     }
 
     image_obs = NULL;
@@ -1884,20 +1697,9 @@ Uint32 main_controller::get_pixel(std::string image_name, int x, int y){
 
 void main_controller::set_pixel(std::string image_name, Uint32 pixel, int x, int y){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->visual_media_room_point, image_obs->visual_media_panel_point)) != NULL){
-            //RETURN FROM PANEL FOUND
-            return panel_obs->visual_media_set_pixel(image_obs->visual_media_index_point, pixel, x, y);
-        } else if ((room_obs = rooms->room_get(image_obs->visual_media_room_point)) != NULL) {
-            //RETURN FROM ROOM FOUND
-            return room_obs->visual_media_set_pixel(image_obs->visual_media_index_point, pixel, x, y);
-        }
-
-        room_obs = NULL;
-        panel_obs = NULL;
+        sources->visual_media_set_pixel(image_obs->visual_media_point, pixel, x, y);
     }
 
     image_obs = NULL;
@@ -1905,20 +1707,9 @@ void main_controller::set_pixel(std::string image_name, Uint32 pixel, int x, int
 
 void main_controller::set_pixels(std::string image_name, Uint32* pixels){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
-    panel_interface* panel_obs = NULL;
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->visual_media_room_point, image_obs->visual_media_panel_point)) != NULL){
-            //RETURN FROM PANEL FOUND
-            panel_obs->visual_media_set_pixels(image_obs->visual_media_index_point, pixels);
-        } else if ((room_obs = rooms->room_get(image_obs->visual_media_room_point)) != NULL) {
-            //RETURN FROM ROOM FOUND
-            room_obs->visual_media_set_pixels(image_obs->visual_media_index_point, pixels);
-        }
-
-        room_obs = NULL;
-        panel_obs = NULL;
+        sources->visual_media_set_pixels(image_obs->visual_media_point, pixels);
     }
 
     image_obs = NULL;
@@ -1926,49 +1717,23 @@ void main_controller::set_pixels(std::string image_name, Uint32* pixels){
 
 void main_controller::set_as_render_target(std::string image_name, int room_to_copy, int panel_to_copy){
     image_point* image_obs = get_image_point(image_name);
-    room* room_obs = NULL;
     room* room_to_copy_obs = NULL;
-    panel_interface* panel_obs = NULL;
     panel_interface* panel_to_copy_obs = NULL;
 
     if (image_obs != NULL && !is_closed){
-        if ((panel_obs = rooms->interface_get(image_obs->visual_media_room_point, image_obs->visual_media_panel_point)) != NULL){
-            //SET THE IMAGE IN A PANEL AS THE TARGET
-            panel_obs->visual_media_set_renderer_target(image_obs->visual_media_index_point);
+        sources->visual_media_set_renderer_target(image_obs->visual_media_point);
 
-            //GET THE ROOM OR PANEL TO COPY
-            if ((panel_to_copy_obs = rooms->interface_get(room_to_copy, panel_to_copy)) != NULL)
-                panel_to_copy_obs->render();
-            else if ((room_to_copy_obs = rooms->room_get(room_to_copy)) != NULL)
-                room_to_copy_obs->render(0,0, screen_width, screen_height);
+        //GET THE ROOM OR PANEL TO COPY
+        if ((panel_to_copy_obs = rooms->interface_get(room_to_copy, panel_to_copy)) != NULL)
+            panel_to_copy_obs->render();
+        else if ((room_to_copy_obs = rooms->room_get(room_to_copy)) != NULL)
+            room_to_copy_obs->render(0,0, screen_width, screen_height);
 
-            //FREE TARGET
-            SDL_SetRenderTarget(renderer, NULL);
-        } else if ((room_obs = rooms->room_get(image_obs->visual_media_room_point)) != NULL) {
-            //SET THE IMAGE IN A ROOM AS THE TARGET
-            room_obs->visual_media_set_renderer_target(image_obs->visual_media_index_point);
-
-            //GET THE ROOM OR PANEL TO COPY
-            if ((panel_to_copy_obs = rooms->interface_get(room_to_copy, panel_to_copy)) != NULL)
-                panel_to_copy_obs->render();
-            else if ((room_to_copy_obs = rooms->room_get(room_to_copy)) != NULL)
-                room_to_copy_obs->render(0,0, screen_width, screen_height);
-
-            //FREE TARGET
-            SDL_SetRenderTarget(renderer, NULL);
-        }
-
-        room_obs = NULL;
-        room_to_copy_obs = NULL;
-        panel_obs = NULL;
-        panel_to_copy_obs = NULL;
+        //FREE TARGET
+        SDL_SetRenderTarget(renderer, NULL);
     }
 
     image_obs = NULL;
-}
-
-void main_controller::set_as_render_target(std::string image_name, int room_to_copy){
-    set_as_render_target(image_name, room_to_copy, -1);
 }
 
 image_point* main_controller::get_button(std::string button_name){
@@ -2054,17 +1819,14 @@ bool main_controller::get_animation_active(std::string image_name){
     return false;
 }
 
-std::string main_controller::new_button(std::string button_name, int room_index, int panel_index, std::vector<SDL_Rect> new_rectangles){
-    panel_interface* panel_obs = rooms->interface_get(room_index, panel_index);
+std::string main_controller::new_button(std::string button_name, std::vector<SDL_Rect> new_rectangles){
     bool button_initiated = false;
 
-    if (!is_closed && panel_obs != NULL && get_button(button_name) == NULL){
-        buttons.insert(std::make_pair(button_name, new image_point(room_index, panel_index,panel_obs->button_new(button_bundle(total_buttons), new_rectangles), -1, -1, -1, total_buttons)));
+    if (!is_closed && panel_point != NULL && get_button(button_name) == NULL){
+        buttons.insert(std::make_pair(button_name, new image_point(-1, room_index, panel_index ,panel_point->button_new(button_bundle(total_buttons), new_rectangles), total_buttons)));
         total_buttons++;
         button_initiated = true;
     }
-
-    panel_obs = NULL;
 
     if (button_initiated)
         return button_name;
@@ -2074,14 +1836,14 @@ std::string main_controller::new_button(std::string button_name, int room_index,
 
 bool main_controller::get_button_active(std::string button_name){
     image_point* button_obs = get_button(button_name);
-    panel_interface* panel_obs = NULL;
+    panel_interface* temp_panel_obs = NULL;
     bool return_active = false;
 
     if (!is_closed && button_obs != NULL){
-        if ((panel_obs = rooms->interface_get(button_obs->visual_media_room_point,button_obs->visual_media_panel_point)) != NULL)
-            return_active = panel_obs->button_get_active(button_obs->visual_media_index_point);
+        if ((temp_panel_obs = rooms->interface_get(button_obs->render_spot_room_point,button_obs->render_spot_panel_point)) != NULL)
+            return_active = temp_panel_obs->button_get_active(button_obs->render_spot_index_point);
 
-        panel_obs = NULL;
+        temp_panel_obs = NULL;
     }
 
     button_obs = NULL;
@@ -2091,14 +1853,14 @@ bool main_controller::get_button_active(std::string button_name){
 
 bool main_controller::set_button_active(std::string button_name, bool active){
     image_point* button_obs = get_button(button_name);
-    panel_interface* panel_obs = NULL;
+    panel_interface* temp_panel_obs = NULL;
     bool return_active = false;
 
     if (!is_closed && button_obs != NULL){
-        if ((panel_obs = rooms->interface_get(button_obs->visual_media_room_point,button_obs->visual_media_panel_point)) != NULL)
-            return_active = panel_obs->button_set_active(button_obs->visual_media_index_point, active);
+        if ((temp_panel_obs = rooms->interface_get(button_obs->render_spot_room_point,button_obs->render_spot_panel_point)) != NULL)
+            return_active = temp_panel_obs->button_set_active(button_obs->render_spot_index_point, active);
 
-        panel_obs = NULL;
+        temp_panel_obs = NULL;
     }
 
     button_obs = NULL;
@@ -2108,13 +1870,13 @@ bool main_controller::set_button_active(std::string button_name, bool active){
 
 void main_controller::transform_button(std::string button_name, std::vector<SDL_Rect> new_rectangles){
     image_point* button_obs = get_button(button_name);
-    panel_interface* panel_obs = NULL;
+    panel_interface* temp_panel_obs = NULL;
 
     if (!is_closed && button_obs != NULL){
-        if ((panel_obs = rooms->interface_get(button_obs->visual_media_room_point,button_obs->visual_media_panel_point)) != NULL)
-            panel_obs->button_transform(button_obs->visual_media_index_point, new_rectangles);
+        if ((temp_panel_obs = rooms->interface_get(button_obs->render_spot_room_point,button_obs->render_spot_panel_point)) != NULL)
+            temp_panel_obs->button_transform(button_obs->render_spot_index_point, new_rectangles);
 
-        panel_obs = NULL;
+        temp_panel_obs = NULL;
     }
 
     button_obs = NULL;
@@ -2122,14 +1884,14 @@ void main_controller::transform_button(std::string button_name, std::vector<SDL_
 
 int main_controller::get_button_over_x(std::string button_name){
     image_point* button_obs = get_button(button_name);
-    panel_interface* panel_obs = NULL;
+    panel_interface* temp_panel_obs = NULL;
     int returning_x = -1;
 
     if (!is_closed && button_obs != NULL){
-        if ((panel_obs = rooms->interface_get(button_obs->visual_media_room_point,button_obs->visual_media_panel_point)) != NULL)
-            returning_x = panel_obs->button_get_over_x(button_obs->visual_media_index_point);
+        if ((temp_panel_obs = rooms->interface_get(button_obs->render_spot_room_point,button_obs->render_spot_panel_point)) != NULL)
+            returning_x = temp_panel_obs->button_get_over_x(button_obs->render_spot_index_point);
 
-        panel_obs = NULL;
+        temp_panel_obs = NULL;
     }
 
     button_obs = NULL;
@@ -2139,14 +1901,14 @@ int main_controller::get_button_over_x(std::string button_name){
 
 int main_controller::get_button_over_y(std::string button_name){
     image_point* button_obs = get_button(button_name);
-    panel_interface* panel_obs = NULL;
+    panel_interface* temp_panel_obs = NULL;
     int returning_y = -1;
 
     if (!is_closed && button_obs != NULL){
-        if ((panel_obs = rooms->interface_get(button_obs->visual_media_room_point,button_obs->visual_media_panel_point)) != NULL)
-            returning_y = panel_obs->button_get_over_y(button_obs->visual_media_index_point);
+        if ((temp_panel_obs = rooms->interface_get(button_obs->render_spot_room_point,button_obs->render_spot_panel_point)) != NULL)
+            returning_y = temp_panel_obs->button_get_over_y(button_obs->render_spot_index_point);
 
-        panel_obs = NULL;
+        temp_panel_obs = NULL;
     }
 
     button_obs = NULL;
@@ -2164,8 +1926,12 @@ std::string main_controller::new_sound(std::string sound_name, std::string sound
         sounds.insert(std::make_pair(sound_name, new mixer_point(mixer->sound_new(channel, loops, volume, total_sounds), total_sounds)));
         total_sounds++;
 
-        mixer->sound_load(sounds[sound_name]->index, sound_path.c_str());
-        new_flag = true;
+        std::cout << "a" << std::endl;
+        std::cout << (get_sound(sound_name) == NULL) << std::endl;
+        std::cout << "d" << std::endl;
+        new_flag = mixer->sound_load(sounds.at(sound_name)->element_ID, sound_path.c_str());
+
+        std::cout << "a" << std::endl;
     }
 
     if (new_flag)
@@ -2197,7 +1963,7 @@ mixer_point* main_controller::get_sound(std::string sound_name){
 
     //SEE IF SOUND EXISTS IN MAP
     try {
-        return_sound = sounds[sound_name];
+        return_sound = sounds.at(sound_name);
     } catch (std::out_of_range e){
         return_sound = NULL;
     }
@@ -2607,32 +2373,91 @@ void main_controller::post_render_update(){
 }
 
 ///EVENT LOOPS (CALLED BY INPUT)
+void main_controller::key_state_procedures_update(const Uint8* key_states){
+    unsigned int i = 0;
+    int input_to_check = 0;
+    bool key_flag = true;
 
-void main_controller::event_key_loop(){
+    //GOING THROUGH PROCEDURES UNTIL ERROR OR ALL ARE READ
+    while (i < key_state_procedures.size() && key_flag){
+        input_to_check = key_state_procedures.at(i).get_input_ID();
+        key_flag = key_state_procedures.at(i).procedure_do(key_states[input_to_check], playing, paused);
+
+
+        i++;
+    }
+
+    //key_flag = rooms->read_room_key_state_procedures(key_states);
+
+    if (!key_flag){
+        if(printing) std::cout << "Error occurred in the key state procedures" << std::endl;
+        quit = true;
+    }
+}
+
+void main_controller::add_to_key_down_queue(int key_code, bool repeat){
+    key_down_queue.push(key_push(key_code, repeat));
+}
+
+void main_controller::key_down_procedures_update(){
     int i;
     bool key_flag = true;
 
-    if (printing) std::cout << "Key queue: ";
+    if (printing) std::cout << "Key Down queue: ";
 
-    while (!(room_event_list.empty()) && key_flag){
-        if (printing) std::cout << room_event_list.front() << "; ";
+    while (!(key_down_queue.empty()) && key_flag){
+        if (printing) std::cout << key_down_queue.front().to_string() << "; ";
         ///SEE IF KEY PROCEDURES NEED TO BE DONE
-        //DOING ROOM KEY RESPONSES
-        if (key_flag)
-            key_flag = rooms->read_room_key_procedures(room_event_list.front(), playing, paused);
+        //DOING MAIN KEY RESPONSES
+        if (key_flag){
+            i = 0;
+
+            while (i < int(key_down_procedures.size()) && key_flag){
+                if (key_down_procedures.at(i).comp_input_ID(key_down_queue.front().scan_code))
+                    key_flag = key_down_procedures.at(i).procedure_do(key_down_queue.front().was_repeat, playing, paused);
+                i++;
+            }
+        }
+
+        key_down_queue.pop();
+    }
+
+    if (printing) std::cout << "\n";
+
+    if (!key_flag){
+        if(printing) std::cout << "Error occurred in the key loop procedures" << std::endl;
+        quit = true;
+    }
+
+    //std::cout << std::endl;
+}
+
+void main_controller::add_to_key_up_queue(int key_code, bool repeat){
+    key_up_queue.push(key_push(key_code, repeat));
+}
+
+void main_controller::key_up_procedures_update(){
+    int i;
+    bool key_flag = true;
+
+    if (printing) std::cout << "Key Up queue: ";
+
+    while (!(key_up_queue.empty()) && key_flag){
+        if (printing) std::cout << key_up_queue.front().to_string()  << "; ";
+        ///SEE IF KEY PROCEDURES NEED TO BE DONE
 
         //DOING MAIN KEY RESPONSES
         if (key_flag){
             i = 0;
 
-            while (i < int(key_procedures.size()) && key_flag){
-                if (key_procedures.at(i).comp_input_ID(room_event_list.front()))
-                    key_flag = key_procedures.at(i).procedure_do(playing, paused);
+            while (i < int(key_up_procedures.size()) && key_flag){
+                if (key_up_procedures.at(i).comp_input_ID(key_up_queue.front().scan_code))
+                    key_flag = key_up_procedures.at(i).procedure_do(key_up_queue.front().was_repeat, playing, paused);
                 i++;
             }
         }
 
-        room_event_list.pop();
+        key_up_queue.pop();
     }
 
     if (printing) std::cout << "\n";
@@ -2645,9 +2470,62 @@ void main_controller::event_key_loop(){
     //std::cout << std::endl;
 }
 
-void main_controller::event_mouse_loop(){
+void main_controller::mouse_state_update(){
+    unsigned int i = 0;
+    bool mouse_flag = true;
+
+    //GET INFORMATION FROM MOUSE'S ACTIONS
+    Uint32 mouse_state = e.motion.state;
+    int mouse_click;
+
+    if (mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT)){
+        mouse_click = 1;
+    } else if (mouse_state & SDL_BUTTON(SDL_BUTTON_RIGHT)){
+        mouse_click = 2;
+    } else if (mouse_state & SDL_BUTTON(SDL_BUTTON_RIGHT)){
+        mouse_click = 3;
+    } else {
+        mouse_click = 0;
+    }
+
+    int x_pos = e.motion.x;
+    int y_pos = e.motion.y;
+
+    int x_motion = e.motion.xrel;
+    int y_motion = e.motion.yrel;
+
+    //GOING THROUGH PROCEDURES UNTIL ERROR OR ALL ARE READ
+    while (i < mouse_state_procedures.size() && mouse_flag){
+        mouse_flag = mouse_state_procedures.at(i).procedure_do(mouse_click, x_pos, y_pos, x_motion, y_motion, playing, paused);
+
+        i++;
+    }
+
+    //key_flag = rooms->read_room_key_state_procedures(key_states);
+
+    if (!mouse_flag){
+        if(printing) std::cout << "Error occurred in the key state procedures" << std::endl;
+        quit = true;
+    }
+}
+
+
+void main_controller::event_mouse_update(){
     int i = 0, j;
     bool mouse_flag = true;
+    unsigned int button;
+
+
+    //DECIDE ON THE BUTTON STATE
+    if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)){
+        button = 1;
+    } else if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_RIGHT)){
+        button = 2;
+    } else if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_MIDDLE)){
+        button = 3;
+    } else {
+        button = 0;
+    }
 
     if (printing) std::cout << "Mouse queue: ";
 
@@ -2656,11 +2534,11 @@ void main_controller::event_mouse_loop(){
         ///SEE IF MOUSE PROCEDURES NEED TO BE DONE
         //DOING RESPONSES FROM INTERFACE OF THIS QUEUE
         if (mouse_flag)
-            mouse_flag = rooms->read_interface_procedures(i, room_event_list.front(), playing, paused);
+            mouse_flag = rooms->read_interface_procedures(i, room_event_list.front(), button, playing, paused);
 
         //DOING RESPONSES FROM CURRENT ROOM
         if (mouse_flag)
-            mouse_flag = rooms->read_room_mouse_procedures(room_event_list.front(), playing, paused);
+            mouse_flag = rooms->read_room_mouse_procedures(room_event_list.front(), button, playing, paused);
 
         //DOING RESPONSES FROM MAIN ITSELF
         if (mouse_flag){
@@ -2668,7 +2546,7 @@ void main_controller::event_mouse_loop(){
 
             while (i < int(mouse_procedures.size()) && mouse_flag){
                 if (mouse_procedures.at(i).comp_input_ID(room_event_list.front()) && mouse_flag)
-                    mouse_flag = mouse_procedures.at(i).procedure_do(playing, paused);
+                    mouse_flag = mouse_procedures.at(i).procedure_do(button, playing, paused);
                 j++;
             }
         }
@@ -2688,39 +2566,126 @@ void main_controller::event_mouse_loop(){
 }
 
 void main_controller::add_start_procedure(loop_procedure new_proc){
-    initialize_queue.push(new_proc);
+    if (room_index >= 0){
+        rooms->add_room_start_procedure(room_index, new_proc);
+    } else {
+        initialize_queue.push(new_proc);
+    }
+}
+
+///BEGINNING AND END PROCEDURES IN THE MAIN CONTROLLER ARE REMOVED ANYWAYS
+void main_controller::remove_start_procedure(int element_ID){
+    if (room_index >= 0){
+        rooms->remove_room_start_procedure(room_index, element_ID);
+    }
 }
 
 void main_controller::add_end_procedure(loop_procedure new_proc){
-    closing_queue.push(new_proc);
+    if (room_index >= 0){
+        rooms->add_room_end_procedure(room_index, new_proc);
+    } else {
+        closing_queue.push(new_proc);
+    }
+}
+
+///BEGINNING AND END PROCEDURES IN THE MAIN CONTROLLER ARE REMOVED ANYWAYS
+void main_controller::remove_end_procedure(int element_ID){
+    if (room_index >= 0){
+        rooms->remove_room_end_procedure(room_index, element_ID);
+    }
 }
 
 void main_controller::add_pre_render_procedure(loop_procedure new_proc){
-    pre_render_procedures.push_back(new_proc);
+    if (room_index >= 0){
+        rooms->add_room_pre_render_procedure(room_index, new_proc);
+    } else {
+        pre_render_procedures.push_back(new_proc);
+    }
 }
 
 void main_controller::remove_pre_render_procedure(int element_ID){
-    for (int i = 0; i < int(pre_render_procedures.size()); i++){
-        if (pre_render_procedures.at(i).comp_ID(element_ID)){
-            pre_render_procedures.erase(pre_render_procedures.begin() + i);
-            i--;
+    if (room_index >= 0){
+        rooms->remove_room_pre_render_procedure(room_index, element_ID);
+    } else {
+        for (int i = 0; i < int(pre_render_procedures.size()); i++){
+            if (pre_render_procedures.at(i).comp_ID(element_ID)){
+                pre_render_procedures.erase(pre_render_procedures.begin() + i);
+                i--;
+            }
         }
     }
 }
 
 void main_controller::add_post_render_procedure(loop_procedure new_proc){
-    post_render_procedures.push_back(new_proc);
+    if (room_index >= 0){
+        rooms->add_room_post_render_procedure(room_index, new_proc);
+    } else {
+        post_render_procedures.push_back(new_proc);
+    }
 }
 
 void main_controller::remove_post_render_procedure(int element_ID){
-    for (int i = 0; i < int(post_render_procedures.size()); i++){
-        if (post_render_procedures.at(i).comp_ID(element_ID)){
-            post_render_procedures.erase(post_render_procedures.begin() + i);
+    if (room_index >= 0){
+        rooms->remove_room_post_render_procedure(room_index, element_ID);
+    } else {
+        for (int i = 0; i < int(post_render_procedures.size()); i++){
+            if (post_render_procedures.at(i).comp_ID(element_ID)){
+                post_render_procedures.erase(post_render_procedures.begin() + i);
+                i--;
+            }
+        }
+    }
+}
+
+int main_controller::add_key_state_procedure(int (*new_proc)(bool), const bool play, const bool pause, const int input){
+    total_key_state_procs++;
+    key_state_procedures.push_back(key_state_procedure(*new_proc, play, pause, input, total_key_state_procs));
+
+    return total_key_state_procs;
+}
+
+void main_controller::remove_key_state_procedure(int element_ID){
+    for (int i = 0; i < int(key_state_procedures.size()); i++){
+        if (key_down_procedures.at(i).comp_ID(element_ID)){
+            key_down_procedures.erase(key_down_procedures.begin() + i);
             i--;
         }
     }
 }
 
+int main_controller::add_key_down_procedure(int (*new_proc)(bool), const bool play, const bool pause, const int input){
+    total_key_down_procs++;
+    key_down_procedures.push_back(key_procedure(*new_proc, play, pause, input, total_key_down_procs));
+
+    return total_key_down_procs;
+}
+
+void main_controller::remove_key_down_procedure(int element_ID){
+    for (int i = 0; i < int(key_down_procedures.size()); i++){
+        if (key_down_procedures.at(i).comp_ID(element_ID)){
+            key_down_procedures.erase(key_down_procedures.begin() + i);
+            i--;
+        }
+    }
+}
+
+int main_controller::add_key_up_procedure(int (*new_proc)(bool), const bool play, const bool pause, const int input){
+    total_key_up_procs++;
+    key_up_procedures.push_back(key_procedure(new_proc, play, pause, input, total_key_up_procs));
+
+    return total_key_up_procs;
+}
+
+void main_controller::remove_key_up_procedure(int element_ID){
+    for (int i = 0; i < int(key_up_procedures.size()); i++){
+        if (key_up_procedures.at(i).comp_ID(element_ID)){
+            key_up_procedures.erase(key_up_procedures.begin() + i);
+            i--;
+        }
+    }
+}
+
+/*
 void main_controller::add_key_procedure(key_procedure new_proc){
     key_procedures.push_back(new_proc);
 }
@@ -2733,30 +2698,39 @@ void main_controller::remove_key_procedure(int element_ID){
         }
     }
 }
+*/
 
-void main_controller::add_mouse_procedure(room_procedure new_proc, int room_to, int panel_to){
-    if (room_to >= 0 && panel_to >= 0){
-        rooms->add_interface_procedure(room_to, panel_to, new_proc);
-    } else if (room_to >= 0) {
-        rooms->add_room_mouse_procedure(room_to, new_proc);
-    } else {
-        mouse_procedures.push_back(new_proc);
+int main_controller::add_mouse_state_procedure(int (*new_proc)(int,int,int,int,int), const bool play, const bool pause){
+    total_room_state_procs++;
+    mouse_state_procedures.push_back(room_state_procedure(*new_proc, play, pause, total_room_state_procs));
+
+    return total_room_state_procs;
+}
+
+void main_controller::remove_mouse_state_procedure(int element_ID){
+    for (int i = 0; i < int(mouse_state_procedures.size()); i++){
+        if (mouse_state_procedures.at(i).comp_ID(element_ID)){
+            mouse_state_procedures.erase(mouse_state_procedures.begin() + i);
+            i--;
+        }
     }
 }
 
-void main_controller::add_mouse_procedure(room_procedure new_proc, int room_to){
-    add_mouse_procedure(new_proc, room_to, -1);
+void main_controller::add_mouse_procedure(int (*new_proc)(unsigned int), int mouse_input, const bool play, const bool pause){
+    if (room_index >= 0 && panel_index >= 0){
+        rooms->add_interface_procedure(room_index, panel_index, room_procedure(new_proc, play, pause, mouse_input, total_mouse_procs));
+        total_mouse_procs++;
+    } else if (room_index >= 0) {
+        rooms->add_room_mouse_procedure(room_index, room_procedure(new_proc, play, pause, mouse_input, total_mouse_procs));
+        total_mouse_procs++;
+    }
 }
 
-void main_controller::add_mouse_procedure(room_procedure new_proc){
-    add_mouse_procedure(new_proc, -1, -1);
-}
-
-void main_controller::remove_mouse_procedure(int element_ID, int room_to, int panel_to){
-    if (room_to >= 0 && panel_to >= 0){
-        rooms->remove_interface_procedure(room_to, panel_to, element_ID);
-    } else if (room_to >= 0) {
-        rooms->remove_room_mouse_procedure(room_to, element_ID);
+void main_controller::remove_mouse_procedure(int element_ID){
+    if (room_index >= 0 && panel_index >= 0){
+        rooms->remove_interface_procedure(room_index, panel_index, element_ID);
+    } else if (room_index >= 0) {
+        rooms->remove_room_mouse_procedure(room_index, element_ID);
     } else {
         for (int i = 0; i < int(mouse_procedures.size()); i++){
             if (mouse_procedures.at(i).comp_ID(element_ID)){
@@ -2766,15 +2740,6 @@ void main_controller::remove_mouse_procedure(int element_ID, int room_to, int pa
         }
     }
 }
-
-void main_controller::remove_mouse_procedure(int element_ID, int room_to){
-    remove_mouse_procedure(element_ID, room_to, -1);
-}
-
-void main_controller::remove_mouse_procedure(int element_ID){
-    remove_mouse_procedure(element_ID, -1, -1);
-}
-
 
 void main_controller::draw_point(SDL_Color color, int x, int y){
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);

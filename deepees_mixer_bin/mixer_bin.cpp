@@ -149,11 +149,14 @@ int mixer_bin::sound_new(int channel, int loops, Uint8 volume, int ID){
     return sound_media_bin.size()-1;
 }
 
-bool mixer_bin::sound_load(unsigned int index, const char sound_path[]){
+bool mixer_bin::sound_load(unsigned int index, const char* sound_path){
     //Check if index exists
     //
-    if (index < sound_media_bin.size()){
-        return sound_media_bin[index].load_sound(sound_path);
+    std::cout << "d" << std::endl;
+
+    if (index < (int)sound_media_bin.size()){
+            std::cout << "d" << std::endl;
+        return sound_media_bin.at(index).load_sound(sound_path);
     } else {
         //std::cout << "This index is not available!" << std::endl;
         return false;

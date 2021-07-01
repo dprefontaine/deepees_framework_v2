@@ -1,7 +1,7 @@
 #include "panel_interface.h"
 
 //CONSTRUCTOR
-panel_interface::panel_interface(int vp_x,int vp_y,int vp_w,int vp_h, int x_bound, int y_bound, m_window* window_pointer, SDL_Renderer* renderer_pointer){
+panel_interface::panel_interface(int vp_x,int vp_y,int vp_w,int vp_h, int x_bound, int y_bound, m_window* window_pointer, SDL_Renderer* renderer_pointer, image_source_controller* source_pointer){
     viewport.x = vp_x;
     viewport.y = vp_y;
     viewport.w = vp_w;
@@ -22,6 +22,7 @@ panel_interface::panel_interface(int vp_x,int vp_y,int vp_w,int vp_h, int x_boun
 
     window = window_pointer;
     renderer = renderer_pointer;
+    images = source_pointer;
 }
 
 //DESTRUCTOR
@@ -296,13 +297,13 @@ void panel_interface::set_listening(bool listening){
     is_listened = listening;
 }
 
-bool panel_interface::read_panel_procedures(int mouse_activity, bool playing, bool paused){
+bool panel_interface::read_panel_procedures(int mouse_activity, unsigned int mouse_button, bool playing, bool paused){
     int i = 0;
     bool interface_flag = true;
 
     while (i < int(panel_procedures.size()) && interface_flag){
         if (panel_procedures.at(i).comp_input_ID(mouse_activity))
-            interface_flag = panel_procedures.at(i).procedure_do(playing, paused);
+            interface_flag = panel_procedures.at(i).procedure_do(mouse_button, playing, paused);
 
         i++;
     }

@@ -759,10 +759,11 @@
 1577490954 source:c:\deepees_framework_v2\deepees_mixer\mixer_set.cpp
 	"mixer_set.h"
 
-1589228452 source:c:\deepees_framework_v2\deepees_mixer_bin\mixer_bin.cpp
+1623647694 source:c:\deepees_framework_v2\deepees_mixer_bin\mixer_bin.cpp
 	"mixer_bin.h"
 
-1589233835 c:\deepees_framework_v2\deepees_mixer_bin\mixer_bin.h
+1623647605 c:\deepees_framework_v2\deepees_mixer_bin\mixer_bin.h
+	<iostream>
 	"mixer_set.h"
 
 1589313499 c:\deepees_framework_v2\deepees_mixer_bin\mixer_set.h

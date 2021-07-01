@@ -18,11 +18,9 @@
 ///NOTE FOR FUTURE: MIGHT RESERVE ROOM AND PANEL RELATION ONLY FOR VIEWPORTS, WHERE IMAGES CAN BE SHARED UNIVERSALLY AMONG PANELS
 struct image_point{
 public:
-    image_point(int visual_media_room_point, int visual_media_panel_point, int visual_media_index_point, int render_spot_room_point, int render_spot_panel_point, int render_spot_index_point, int element_ID);
+    image_point(int visual_media_point, int render_spot_room_point, int render_spot_panel_point, int render_spot_index_point, int element_ID);
     ~image_point();
-    int visual_media_room_point;
-    int visual_media_panel_point;
-    int visual_media_index_point;
+    int visual_media_point;
     int render_spot_room_point;
     int render_spot_panel_point;
     int render_spot_index_point;
@@ -32,10 +30,8 @@ public:
 
 ///FOR POINTING TO IMAGE SOURCES ONLY
 struct image_source_point{
-    image_source_point(int visual_media_room_point, int visual_media_panel_point, int visual_media_index_point);
-    int visual_media_room_point;
-    int visual_media_panel_point;
-    int visual_media_index_point;
+    image_source_point(int visual_media_point);
+    int visual_media_point;
 };
 
 

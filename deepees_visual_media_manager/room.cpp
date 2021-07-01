@@ -2,7 +2,7 @@
 
 //CONSTRUCTOR
 //
-room::room(m_window* window_pointer, SDL_Renderer* renderer_pointer){
+room::room(m_window* window_pointer, SDL_Renderer* renderer_pointer, image_source_controller* sources_pointer){
     is_active = false;
 
     interfaces = std::vector<panel_interface>();
@@ -11,12 +11,16 @@ room::room(m_window* window_pointer, SDL_Renderer* renderer_pointer){
     room_post_render_procedures = std::vector<loop_procedure>();
     room_end_procedures = std::vector<loop_procedure>();
 
-    room_key_procedures = std::vector<key_procedure>();
+    room_key_state_procedures = std::vector<key_state_procedure>();
+
+    room_key_down_procedures = std::vector<key_procedure>();
+    room_key_up_procedures = std::vector<key_procedure>();
 
     room_mouse_procedures = std::vector<room_procedure>();
 
     window = window_pointer;
     renderer = renderer_pointer;
+    images = sources_pointer;
 };
 
 //DESTRUCTOR
@@ -37,7 +41,10 @@ room::~room(){
 
     std::vector<loop_procedure>().swap(room_end_procedures);
 
-    std::vector<key_procedure>().swap(room_key_procedures);
+    std::vector<key_state_procedure>().swap(room_key_state_procedures);
+
+    std::vector<key_procedure>().swap(room_key_down_procedures);
+    std::vector<key_procedure>().swap(room_key_up_procedures);
 
     std::vector<room_procedure>().swap(room_mouse_procedures);
 
@@ -46,7 +53,7 @@ room::~room(){
 
 
 int room::add_interface(int vp_x, int vp_y, int vp_w, int vp_h, int full_x_panel, int full_y_panel){
-    interfaces.push_back(panel_interface(vp_x,vp_y,vp_w,vp_h, full_x_panel, full_y_panel, window, renderer));
+    interfaces.push_back(panel_interface(vp_x,vp_y,vp_w,vp_h, full_x_panel, full_y_panel, window, renderer, images));
     //REMOVED TOTAL INTERFACE VARIABLE HERE
 
     return interfaces.size()-1;
@@ -57,14 +64,14 @@ int room::add_interface(int vp_x, int vp_y, int vp_w, int vp_h, int full_x_panel
 bool room::visual_media_load_as_snapshot(int index, int x_pos, int y_pos, int x_size, int y_size){
     bool load_flag = false;
 
-    if (is_within_index(visual_media_bin.size(),index)){
-        load_flag = visual_media_bin[index].load_as_blank(SDL_TEXTUREACCESS_TARGET);
+    if (is_within_index(images->size(),index)){
+        load_flag = images->load_as_blank(index, SDL_TEXTUREACCESS_TARGET);
 
         if (load_flag)
-            load_flag = visual_media_set_renderer_target(index);
+            load_flag = images->visual_media_set_renderer_target(index);
 
         render(x_pos, y_pos, x_size, y_size);
-        visual_media_free_renderer_target();
+        images->visual_media_free_renderer_target();
     } else
         std::cout << "This index is not available!" << std::endl;
 
@@ -197,6 +204,7 @@ void room::interface_misc_set_listening(int index, bool listening){
         interfaces.at(index).set_listening(listening);
 }
 
+
 bool room::read_start_procedures(bool playing, bool paused){
     int i = 0;
     bool start_flag = true;
@@ -297,6 +305,93 @@ void room::remove_post_render_procedure(int element_ID){
         }
 }
 
+/*
+bool room::read_key_state_procedures(const Uint8* key_states, bool playing, bool paused){
+    unsigned int i = 0;
+    int input_to_check = 0;
+    bool key_flag = true;
+
+    //GOING THROUGH PROCEDURES UNTIL ERROR OR ALL ARE READ
+    while (i < room_key_state_procedures.size() && key_flag){
+        input_to_check = room_key_state_procedures.at(i).get_input_ID();
+        key_flag = room_key_state_procedures.at(i).procedure_do(key_states[input_to_check], playing, paused);
+
+
+        i++;
+    }
+
+    return key_flag;
+}
+
+void room::add_key_state_procedure(key_state_procedure new_proc){
+    room_key_state_procedures.push_back(new_proc);
+}
+
+void room::remove_key_state_procedure(int element_ID){
+    for (int i = 0; i < int(room_key_state_procedures.size()); i++)
+        if (room_key_state_procedures.at(i).comp_ID(element_ID)){
+            room_key_state_procedures.erase(room_key_state_procedures.begin() + i);
+            i--;
+        }
+}
+
+bool room::read_key_down_procedures(key_push key_to_read, bool playing, bool paused){
+    int i = 0;
+    bool key_flag = true;
+
+    //GOING THROUGH PROCEDURES UNTIL ERROR OR ALL ARE READ
+    while (i < int(room_key_down_procedures.size()) && key_flag){
+        if (room_key_down_procedures.at(i).comp_input_ID(key_to_read.scan_code))
+            key_flag = room_key_down_procedures.at(i).procedure_do(key_to_read.was_repeat, playing, paused);
+
+        i++;
+    }
+
+    return key_flag;
+}
+
+void room::add_key_down_procedure(key_procedure new_proc){
+    room_key_down_procedures.push_back(new_proc);
+}
+
+void room::remove_key_down_procedure(int element_ID){
+    for (int i = 0; i < int(room_key_down_procedures.size()); i++)
+        if (room_key_down_procedures.at(i).comp_ID(element_ID)){
+            room_key_down_procedures.erase(room_key_down_procedures.begin() + i);
+            i--;
+        }
+}
+
+bool room::read_key_up_procedures(key_push key_to_read, bool playing, bool paused){
+    int i = 0;
+    bool key_flag = true;
+
+    //GOING THROUGH PROCEDURES UNTIL ERROR OR ALL ARE READ
+    while (i < int(room_key_up_procedures.size()) && key_flag){
+        if (room_key_up_procedures.at(i).comp_input_ID(key_to_read.scan_code))
+            key_flag = room_key_up_procedures.at(i).procedure_do(key_to_read.was_repeat, playing, paused);
+
+        i++;
+    }
+
+    return key_flag;
+}
+
+void room::add_key_up_procedure(key_procedure new_proc){
+    room_key_up_procedures.push_back(new_proc);
+}
+
+void room::remove_key_up_procedure(int element_ID){
+    for (int i = 0; i < int(room_key_up_procedures.size()); i++)
+        if (room_key_up_procedures.at(i).comp_ID(element_ID)){
+            room_key_up_procedures.erase(room_key_up_procedures.begin() + i);
+            i--;
+        }
+}
+*/
+
+
+/*
 bool room::read_key_procedures(int input, bool playing, bool paused){
     int i = 0;
     bool key_flag = true;
@@ -323,16 +418,17 @@ void room::remove_key_procedure(int element_ID){
             i--;
         }
 }
+*/
 
-//THIS SHOULD BE O(N*M)
-bool room::read_mouse_procedures(int mouse_activity, bool playing, bool paused){
+//THIS SHOULD BE AN O(INTERFACES*MAX_BUTTONS)
+bool room::read_mouse_procedures(int mouse_activity, unsigned int mouse_button, bool playing, bool paused){
     int i = 0;
     bool mouse_flag = true;
 
     //GOING THROUGH PROCEDURES UNTIL ERROR OR ALL ARE READ
     while (i < int(room_mouse_procedures.size()) && mouse_flag){
         if (room_mouse_procedures[i].comp_input_ID(mouse_activity))
-            mouse_flag = room_mouse_procedures.at(i).procedure_do(playing, paused);
+            mouse_flag = room_mouse_procedures.at(i).procedure_do(mouse_button, playing, paused);
 
         i++;
     }
@@ -352,12 +448,12 @@ void room::remove_mouse_procedure(int element_ID){
         }
 }
 
-bool room::read_interface_procedures(int interface, int mouse_activity, bool playing, bool paused){
+bool room::read_interface_procedures(int interface, int mouse_activity, unsigned int mouse_button, bool playing, bool paused){
     bool interface_flag = true;
 
     //GOING THROUGH PROCEDURES UNTIL ERROR OR ALL ARE READ
     if (is_within_index(interfaces.size(),interface))
-        interface_flag = interfaces.at(interface).read_panel_procedures(mouse_activity, playing, paused);
+        interface_flag = interfaces.at(interface).read_panel_procedures(mouse_activity, mouse_button, playing, paused);
 
     return interface_flag;
 }

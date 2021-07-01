@@ -4,8 +4,7 @@
 #include <queue>
 #include "panel_interface.h"
 
-#include <loop_procedure.h>
-#include <key_procedure.h>
+#include <procedures.h>
 
 //FOR LOADING ROOMS
 //
@@ -13,7 +12,7 @@
 class room : public media_bin{
 public:
     //CONSTRUCTOR
-    room(m_window* window_pointer, SDL_Renderer* renderer_pointer);
+    room(m_window* window_pointer, SDL_Renderer* renderer_pointer, image_source_controller* sources_pointer);
     //DESTRUCTOR
     ~room();
 
@@ -56,6 +55,8 @@ public:
 
     ///PROCEDURE MANAGER
     //
+
+
     bool read_start_procedures(bool playing, bool paused);
     void add_start_procedure(loop_procedure new_proc);
     void remove_start_procedure(int element_ID);
@@ -72,15 +73,33 @@ public:
     void add_post_render_procedure(loop_procedure new_proc);
     void remove_post_render_procedure(int element_ID);
 
+
+    //KEY PROCEDURES
+
+    /*
+    bool read_key_state_procedures(const Uint8* key_states, bool playing, bool paused);
+    void add_key_state_procedure(key_state_procedure new_proc);
+    void remove_key_state_procedure(int element_ID);
+
+    bool read_key_down_procedures(key_push key_to_read, bool playing, bool paused);
+    void add_key_down_procedure(key_procedure new_proc);
+    void remove_key_down_procedure(int element_ID);
+
+    bool read_key_up_procedures(key_push key_to_read, bool playing, bool paused);
+    void add_key_up_procedure(key_procedure new_proc);
+    void remove_key_up_procedure(int element_ID);
+    */
+
+    /*
     bool read_key_procedures(int input, bool playing, bool paused);
     void add_key_procedure(key_procedure new_proc);
     void remove_key_procedure(int element_ID);
-
-    bool read_mouse_procedures(int mouse_activity, bool playing, bool paused);
+    */
+    bool read_mouse_procedures(int mouse_activity, unsigned int mouse_button, bool playing, bool paused);
     void add_mouse_procedure(room_procedure new_proc);
     void remove_mouse_procedure(int element_ID);
 
-    bool read_interface_procedures(int interface, int mouse_activity, bool playing, bool paused);
+    bool read_interface_procedures(int interface, int mouse_activity, unsigned int mouse_button, bool playing, bool paused);
     bool add_interface_procedure(int interface, room_procedure new_proc);
     bool remove_interface_procedure(int interface, int element_ID);
 
@@ -102,7 +121,9 @@ private:
     std::vector<loop_procedure> room_post_render_procedures;
     std::vector<loop_procedure> room_end_procedures;
 
-    std::vector<key_procedure> room_key_procedures;
+    std::vector<key_state_procedure> room_key_state_procedures;
+    std::vector<key_procedure> room_key_down_procedures;
+    std::vector<key_procedure> room_key_up_procedures;
 
     std::vector<room_procedure> room_mouse_procedures;
 };

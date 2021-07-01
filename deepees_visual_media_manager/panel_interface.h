@@ -3,14 +3,14 @@
 
 #include "media_bin.h"
 #include <window.h>
-#include <room_procedure.h>
+#include <procedures.h>
 
 class panel_interface : public media_bin{
 public:
     ///CONSTRUCTOR
     //
     //extended (bound not set to viewport)
-    panel_interface(int vp_x,int vp_y,int vp_w,int vp_h, int x_bound, int y_bound, m_window* window_pointer, SDL_Renderer* renderer_pointer);
+    panel_interface(int vp_x,int vp_y,int vp_w,int vp_h, int x_bound, int y_bound, m_window* window_pointer, SDL_Renderer* renderer_pointer, image_source_controller* source_pointer);
     //
     ///DESTRUCTOR
     ~panel_interface();
@@ -60,7 +60,7 @@ public:
     //
     ///PROCEDURE STUFF
     //
-    bool read_panel_procedures(int mouse_activity, bool playing, bool paused);
+    bool read_panel_procedures(int mouse_activity, unsigned int mouse_button, bool playing, bool paused);
     void add_panel_procedure(room_procedure new_proc);
     void remove_panel_procedure(int element_ID);
 

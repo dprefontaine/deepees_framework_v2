@@ -49,6 +49,8 @@
 			<Add directory="../deepees_window/bin/Debug" />
 			<Add directory="../sdl_stuff/SDL2-2.0.12/i686-w64-mingw32/lib" />
 		</Linker>
+		<Unit filename="image_sources.cpp" />
+		<Unit filename="image_sources.h" />
 		<Unit filename="media_bin.cpp" />
 		<Unit filename="media_bin.h" />
 		<Unit filename="media_set.cpp" />

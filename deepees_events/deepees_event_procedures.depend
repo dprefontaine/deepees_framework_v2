@@ -14,20 +14,22 @@
 
 1560116250 c:\deepees_framework\deepees_event_procedures\room_procedure.h
 
-1557985976 source:c:\deepees_framework_v2\deepees_events\key_procedure.cpp
+1623362037 source:c:\deepees_framework_v2\deepees_events\key_procedure.cpp
 	"key_procedure.h"
 
-1589313433 c:\deepees_framework_v2\deepees_events\key_procedure.h
+1623783078 c:\deepees_framework_v2\deepees_events\key_procedure.h
+	<string>
 
-1558292060 source:c:\deepees_framework_v2\deepees_events\loop_procedure.cpp
+1623780372 source:c:\deepees_framework_v2\deepees_events\loop_procedure.cpp
 	"loop_procedure.h"
 
-1558292060 c:\deepees_framework_v2\deepees_events\loop_procedure.h
+1623784134 c:\deepees_framework_v2\deepees_events\loop_procedure.h
+	<string>
 
-1560116242 source:c:\deepees_framework_v2\deepees_events\room_procedure.cpp
+1623782255 source:c:\deepees_framework_v2\deepees_events\room_procedure.cpp
 	"room_procedure.h"
 
-1560116250 c:\deepees_framework_v2\deepees_events\room_procedure.h
+1623548024 c:\deepees_framework_v2\deepees_events\room_procedure.h
 
 1591738839 source:c:\deepees_framework_v2\deepees_events\alarm.cpp
 	"alarm.h"
@@ -38,7 +40,7 @@
 1591738917 source:c:\deepees_framework_v2\deepees_events\animation_player.cpp
 	"animation_player.h"
 
-1591648934 c:\deepees_framework_v2\deepees_events\animation_player.h
+1623784282 c:\deepees_framework_v2\deepees_events\animation_player.h
 	"alarm.h"
 	<vector>
 
@@ -762,4 +764,17 @@
 1591590842 c:\deepees_framework_v2\deepees_events\animation_set.h
 	"animation_player.h"
 	<map>
+
+1623784054 source:c:\deepees_framework_v2\deepees_events\key_state_procedure.cpp
+	"key_state_procedure.h"
+
+1623363607 c:\deepees_framework_v2\deepees_events\key_state_procedure.h
+
+1623782984 source:c:\deepees_framework_v2\deepees_events\room_state_procedure.cpp
+	"room_state_procedure.h"
+
+1623623991 c:\deepees_framework_v2\deepees_events\room_state_procedure.h
+
+1623784255 c:\deepees_framework_v2\deepees_events\procedures.h
+	<string>
 

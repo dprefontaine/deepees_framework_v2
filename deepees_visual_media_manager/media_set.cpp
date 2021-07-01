@@ -1,9 +1,7 @@
 #include "media_set.h"
 
-image_point::image_point(int visual_media_room_point, int visual_media_panel_point, int visual_media_index_point, int render_spot_room_point, int render_spot_panel_point, int render_spot_index_point, int element_ID){
-    this->visual_media_room_point = visual_media_room_point;
-    this->visual_media_panel_point = visual_media_panel_point;
-    this->visual_media_index_point = visual_media_index_point;
+image_point::image_point(int visual_media_point, int render_spot_room_point, int render_spot_panel_point, int render_spot_index_point, int element_ID){
+    this->visual_media_point = visual_media_point;
     this->render_spot_room_point = render_spot_room_point;
     this->render_spot_panel_point = render_spot_panel_point;
     this->render_spot_index_point = render_spot_index_point;
@@ -17,10 +15,8 @@ image_point::~image_point(){
     }
 }
 
-image_source_point::image_source_point(int visual_media_room_point, int visual_media_panel_point, int visual_media_index_point){
-    this->visual_media_room_point = visual_media_room_point;
-    this->visual_media_panel_point = visual_media_panel_point;
-    this->visual_media_index_point = visual_media_index_point;
+image_source_point::image_source_point(int visual_media_point){
+    this->visual_media_point = visual_media_point;
 }
 
 button_bundle::button_bundle(int element_ID){
@@ -118,8 +114,9 @@ bool rendering_bundle::render_bundle(visual_media* media_to_render, int x_pos, i
 
             //CHECKING IF RENDERING SPOT IS WITHIN BOUNDS
             //
-            if (render_x + render_spot.w > 0 && render_x < x_size && render_y + render_spot.h  > 0 && render_y < y_size)
+            if (render_x + render_spot.w > 0 && render_x < x_size && render_y + render_spot.h  > 0 && render_y < y_size){
                 bundle_flag = media_to_render->render(render_x,render_y,render_spot,rotation,flip_state);
+            }
         }
 
     return bundle_flag;

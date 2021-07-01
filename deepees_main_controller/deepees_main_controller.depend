@@ -456,10 +456,10 @@
 	<string>
 	<iostream>
 
-1619232997 source:c:\deepees_framework_v2\deepees_main_controller\main_controller.cpp
+1623965758 source:c:\deepees_framework_v2\deepees_main_controller\main_controller.cpp
 	"main_controller.h"
 
-1596425869 c:\deepees_framework_v2\deepees_main_controller\main_controller.h
+1623876749 c:\deepees_framework_v2\deepees_main_controller\main_controller.h
 	<map>
 	<algorithm>
 	<math.h>
@@ -469,13 +469,13 @@
 	<room_control.h>
 	<mixer_bin.h>
 
-1591416600 c:\deepees_framework_v2\deepees_room_controller\room_control.h
+1623876860 c:\deepees_framework_v2\deepees_room_controller\room_control.h
 	<room.h>
 
 1591738813 c:\deepees_framework_v2\deepees_events\alarm.h
 	"timer.h"
 
-1591648934 c:\deepees_framework_v2\deepees_events\animation_player.h
+1623784282 c:\deepees_framework_v2\deepees_events\animation_player.h
 	"alarm.h"
 	<vector>
 
@@ -836,23 +836,20 @@
 	"begin_code.h"
 	"close_code.h"
 
-1589224197 c:\deepees_framework_v2\deepees_visual_media_manager\room.h
+1623876847 c:\deepees_framework_v2\deepees_visual_media_manager\room.h
 	<queue>
 	"panel_interface.h"
-	<loop_procedure.h>
-	<key_procedure.h>
+	<procedures.h>
 
-1589224174 c:\deepees_framework_v2\deepees_visual_media_manager\panel_interface.h
+1623876843 c:\deepees_framework_v2\deepees_visual_media_manager\panel_interface.h
 	"media_bin.h"
 	<window.h>
-	<room_procedure.h>
+	<procedures.h>
 
-1619231690 c:\deepees_framework_v2\deepees_visual_media_manager\media_bin.h
-	"media_set.h"
-	"camera.h"
-	<algorithm>
+1623876826 c:\deepees_framework_v2\deepees_visual_media_manager\media_bin.h
+	"image_sources.h"
 
-1619232997 c:\deepees_framework_v2\deepees_visual_media_manager\media_set.h
+1623878153 c:\deepees_framework_v2\deepees_visual_media_manager\media_set.h
 	<iostream>
 	<vector>
 	<animation_set.h>
@@ -863,11 +860,12 @@
 
 1589220971 c:\deepees_framework_v2\deepees_math_and_points\math_set.h
 
-1596424773 c:\deepees_framework_v2\deepees_visual_media\visual_media.h
+1623965413 c:\deepees_framework_v2\deepees_visual_media\visual_media.h
 	<SDL.h>
 	<SDL_image.h>
 	<SDL_ttf.h>
 	<cstring>
+	<iostream>
 
 1589223361 c:\deepees_framework_v2\sdl_stuff\sdl2-2.0.12\include\sdl_image.h
 	"SDL.h"
@@ -889,13 +887,15 @@
 1589312584 c:\deepees_framework_v2\deepees_window\window.h
 	<SDL.h>
 
-1560116250 c:\deepees_framework_v2\deepees_events\room_procedure.h
+1623548024 c:\deepees_framework_v2\deepees_events\room_procedure.h
 
-1558292060 c:\deepees_framework_v2\deepees_events\loop_procedure.h
+1623266564 c:\deepees_framework_v2\deepees_events\loop_procedure.h
 
-1589313433 c:\deepees_framework_v2\deepees_events\key_procedure.h
+1623360033 c:\deepees_framework_v2\deepees_events\key_procedure.h
+	<string>
 
-1589233835 c:\deepees_framework_v2\deepees_mixer_bin\mixer_bin.h
+1623647605 c:\deepees_framework_v2\deepees_mixer_bin\mixer_bin.h
+	<iostream>
 	"mixer_set.h"
 
 1589313499 c:\deepees_framework_v2\deepees_mixer_bin\mixer_set.h
@@ -1297,4 +1297,22 @@
 1591590842 c:\deepees_framework_v2\deepees_events\animation_set.h
 	"animation_player.h"
 	<map>
+
+1623266284 c:\deepees_framework_v2\deepees_main_controller\event_handler.h
+	<room_procedure.h>
+	<key_procedure.h>
+	<key_state_procedure.h>
+	<vector>
+
+1623363607 c:\deepees_framework_v2\deepees_events\key_state_procedure.h
+
+1623623991 c:\deepees_framework_v2\deepees_events\room_state_procedure.h
+
+1623784561 c:\deepees_framework_v2\deepees_events\procedures.h
+	<string>
+
+1623959809 c:\deepees_framework_v2\deepees_visual_media_manager\image_sources.h
+	"media_set.h"
+	"camera.h"
+	<algorithm>
 

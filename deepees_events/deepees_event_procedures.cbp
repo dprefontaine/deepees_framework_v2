@@ -54,12 +54,7 @@
 		<Unit filename="animation_player.h" />
 		<Unit filename="animation_set.cpp" />
 		<Unit filename="animation_set.h" />
-		<Unit filename="key_procedure.cpp" />
-		<Unit filename="key_procedure.h" />
-		<Unit filename="loop_procedure.cpp" />
-		<Unit filename="loop_procedure.h" />
-		<Unit filename="room_procedure.cpp" />
-		<Unit filename="room_procedure.h" />
+		<Unit filename="procedures.h" />
 		<Unit filename="timer.cpp" />
 		<Unit filename="timer.h" />
 		<Extensions />

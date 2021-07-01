@@ -3,6 +3,7 @@
 
 ///THIS IS TO SAVE ON MEDIA CODE FOR BOTH ROOMS AND INTERFACE BLOCKS AND MAKE IT EASIER TO MODIFY MEDIA IF NEEDED
 
+#include <iostream>
 #include "mixer_set.h"
 
 class mixer_bin {
@@ -47,7 +48,7 @@ public:
     ///SOUND MIXER MANAGER
     //
     int sound_new(int channel = -1, int loops = 0, Uint8 volume = 50, int ID = 0);
-    bool sound_load(unsigned int index = 0, const char sound_path[] = {});
+    bool sound_load(unsigned int index, const char* sound_path);
     int sound_get_channel(unsigned int index = 0);
     bool sound_set_channel(unsigned int index = 0, int new_channel = -1);
     Uint8 sound_get_volume(unsigned int index = 0);

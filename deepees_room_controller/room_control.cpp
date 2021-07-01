@@ -2,7 +2,7 @@
 
 ///CODE FOR CONTROLLING ROOMS
 //
-room_controller::room_controller(m_window* window_pointer, SDL_Renderer* renderer_pointer){
+room_controller::room_controller(m_window* window_pointer, SDL_Renderer* renderer_pointer, image_source_controller* sources_pointer){
     rooms = std::vector<room>();
     current_room = -1;
     previous_room = 0;
@@ -11,12 +11,15 @@ room_controller::room_controller(m_window* window_pointer, SDL_Renderer* rendere
 
     window = window_pointer;
     renderer = renderer_pointer;
+    sources = sources_pointer;
 }
 
 room_controller::~room_controller(){
     //CLEARING POINTERS
     window = NULL;
     renderer = NULL;
+    sources = NULL;
+
     //FREEING
     rooms.clear();
     //FREEING MEMORY OF ROOM ARRAY
@@ -32,8 +35,17 @@ void room_controller::set_renderer(SDL_Renderer* new_renderer){
         rooms.at(i).set_renderer(new_renderer);
 }
 
+/*
+void room_controller::set_sources(image_sources* new_image_sources){
+    sources = new_image_sources;
+
+    for (unsigned int i = 0; i < rooms.size(); i++)
+        rooms.at(i).set_sources(new_renderer);
+}
+*/
+
 int room_controller::create_room(){
-    rooms.push_back(room(window, renderer));
+    rooms.push_back(room(window, renderer, sources));
     total_rooms++;
     return total_rooms-1;
 }
@@ -173,9 +185,18 @@ bool room_controller::read_room_start_procedures(bool playing, bool paused){
     }
 }
 
-bool room_controller::add_room_start_procedure(int index, loop_procedure new_proc){
+bool room_controller::add_room_start_procedure(int index, const loop_procedure new_proc){
     try {
-        rooms.at(current_room).add_start_procedure(new_proc);
+        rooms.at(index).add_start_procedure(new_proc);
+        return true;
+    } catch (std::out_of_range e){
+        return false;
+    }
+}
+
+bool room_controller::remove_room_start_procedure(int index, int element_ID){
+    try {
+        rooms.at(index).remove_start_procedure(element_ID);
         return true;
     } catch (std::out_of_range e){
         return false;
@@ -193,7 +214,16 @@ bool room_controller::read_room_end_procedures(bool playing, bool paused){
 
 bool room_controller::add_room_end_procedure(int index, loop_procedure new_proc){
     try {
-        rooms.at(current_room).add_end_procedure(new_proc);
+        rooms.at(index).add_end_procedure(new_proc);
+        return true;
+    } catch (std::out_of_range e){
+        return false;
+    }
+}
+
+bool room_controller::remove_room_end_procedure(int index, int element_ID){
+    try {
+        rooms.at(index).remove_end_procedure(element_ID);
         return true;
     } catch (std::out_of_range e){
         return false;
@@ -219,7 +249,7 @@ bool room_controller::add_room_pre_render_procedure(int index, loop_procedure ne
 
 bool room_controller::remove_room_pre_render_procedure(int index, int element_ID){
     try {
-        rooms.at(current_room).remove_pre_render_procedure(element_ID);
+        rooms.at(index).remove_pre_render_procedure(element_ID);
         return true;
     } catch (std::out_of_range e){
         return false;
@@ -236,7 +266,7 @@ bool room_controller::read_room_post_render_procedures(unsigned int ticks, bool 
 
 bool room_controller::add_room_post_render_procedure(int index, loop_procedure new_proc){
     try {
-        rooms.at(current_room).add_post_render_procedure(new_proc);
+        rooms.at(index).add_post_render_procedure(new_proc);
         return true;
     } catch (std::out_of_range e){
         return false;
@@ -245,7 +275,88 @@ bool room_controller::add_room_post_render_procedure(int index, loop_procedure n
 
 bool room_controller::remove_room_post_render_procedure(int index, int element_ID){
     try {
-        rooms.at(current_room).remove_post_render_procedure(element_ID);
+        rooms.at(index).remove_post_render_procedure(element_ID);
+        return true;
+    } catch (std::out_of_range e){
+        return false;
+    }
+}
+
+
+
+/*
+bool room_controller::read_room_key_state_procedures(const Uint8* key_states, bool playing, bool paused){
+    try {
+        return rooms.at(current_room).read_key_state_procedures(key_states, playing, paused);
+    } catch (std::out_of_range e){
+        return false;
+    }
+}
+
+bool room_controller::add_room_key_state_procedure(int index, key_state_procedure new_proc){
+    try {
+        rooms.at(current_room).add_key_state_procedure(new_proc);
+        return true;
+    } catch (std::out_of_range e){
+        return false;
+    }
+}
+
+bool room_controller::remove_room_key_state_procedure(int index, int element_ID){
+    try {
+        rooms.at(current_room).remove_key_state_procedure(element_ID);
+        return true;
+    } catch (std::out_of_range e){
+        return false;
+    }
+}
+
+bool room_controller::read_room_key_down_procedures(key_push key_obs, bool playing, bool paused){
+    try {
+        return rooms.at(current_room).read_key_down_procedures(key_obs, playing, paused);
+    } catch (std::out_of_range e){
+        return false;
+    }
+}
+
+bool room_controller::add_room_key_down_procedure(int index, key_procedure new_proc){
+    try {
+        rooms.at(current_room).add_key_down_procedure(new_proc);
+        return true;
+    } catch (std::out_of_range e){
+        return false;
+    }
+}
+
+bool room_controller::remove_room_key_down_procedure(int index, int element_ID){
+    try {
+        rooms.at(current_room).remove_key_down_procedure(element_ID);
+        return true;
+    } catch (std::out_of_range e){
+        return false;
+    }
+}
+
+bool room_controller::read_room_key_up_procedures(key_push key_obs, bool playing, bool paused){
+    try {
+        return rooms.at(current_room).read_key_up_procedures(key_obs, playing, paused);
+    } catch (std::out_of_range e){
+        return false;
+    }
+}
+
+bool room_controller::add_room_key_up_procedure(int index, key_procedure new_proc){
+    try {
+        rooms.at(current_room).add_key_up_procedure(new_proc);
+        return true;
+    } catch (std::out_of_range e){
+        return false;
+    }
+}
+
+bool room_controller::remove_room_key_up_procedure(int index, int element_ID){
+    try {
+        rooms.at(current_room).remove_key_up_procedure(element_ID);
         return true;
     } catch (std::out_of_range e){
         return false;
@@ -277,10 +388,11 @@ bool room_controller::remove_room_key_procedure(int index, int element_ID){
         return false;
     }
 }
+*/
 
-bool room_controller::read_room_mouse_procedures(int mouse_activity, bool playing, bool paused){
+bool room_controller::read_room_mouse_procedures(int mouse_activity, unsigned int mouse_button, bool playing, bool paused){
     try {
-        return rooms.at(current_room).read_mouse_procedures(mouse_activity, playing, paused);
+        return rooms.at(current_room).read_mouse_procedures(mouse_activity, mouse_button, playing, paused);
     } catch (std::out_of_range e){
         return false;
     }
@@ -304,9 +416,9 @@ bool room_controller::remove_room_mouse_procedure(int index, int element_ID){
     }
 }
 
-bool room_controller::read_interface_procedures(int interface, int mouse_activity, bool playing, bool paused){
+bool room_controller::read_interface_procedures(int interface, int mouse_activity, unsigned int mouse_button, bool playing, bool paused){
     try {
-        return rooms.at(current_room).read_interface_procedures(interface, mouse_activity, playing, paused);
+        return rooms.at(current_room).read_interface_procedures(interface, mouse_activity, mouse_button, playing, paused);
     } catch (std::out_of_range e){
         return true;
     }

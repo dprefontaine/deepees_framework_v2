@@ -5,6 +5,7 @@
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 #include <cstring>
+#include <iostream>
 
 ///BASE FOR TEXT, IMAGES, AND SHAPES TO INHERIT FROM (SAVES ON A BIT OF CODE)
 //

@@ -1,6 +1,8 @@
 #ifndef MAIN_CONTROLLER_H_INCLUDED
 #define MAIN_CONTROLLER_H_INCLUDED
 
+#pragma once
+
 #include <map>
 #include <algorithm>
 #include <math.h>
@@ -50,6 +52,15 @@ public:
     SDL_Rect get_camera_rectangle(int room_to, int panel_to);
     void set_camera_position(int room_to, int panel_to, int x, int y);        //MAY ADD MORE CAMERA MANAGEMENT FUNCTIONS LATER
 
+    //ROOM MANAGER
+    //
+    //FOR POINTING TO ROOMS AND MAKING SETTING MEDIA MORE STREAMLINED
+    int point_to_room(int new_room);
+    int get_pointed_room(){return room_index;}
+
+    int point_to_panel(int new_panel);
+    int get_pointed_panel(){return panel_index;}
+
     //IMAGE MANAGER
     //
     //FOR LOADING AN IMAGE BAREBONES FOR USE
@@ -57,28 +68,18 @@ public:
     std::string new_image_source(std::string source_name, std::string image_path, int room_index);
 
     //FOR QUICK LOADING AN IMAGE
-    std::string new_image(std::string image_name, std::string image_path, int room_index, int panel_index, SDL_Rect clip_rect, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha);
-    std::string new_image(std::string image_name, std::string image_path, int room_index, int panel_index, SDL_Rect clip_rect);
-    std::string new_image(std::string image_name, std::string image_path, int room_index, int panel_index, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha);
-    std::string new_image(std::string image_name, std::string image_path, int room_index, int panel_index);
-    std::string new_image(std::string image_name, std::string image_path, int room_index, SDL_Rect clip_rect, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha);
-    std::string new_image(std::string image_name, std::string image_path, int room_index, SDL_Rect clip_rect);
-    std::string new_image(std::string image_name, std::string image_path, int room_index, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha);
-    std::string new_image(std::string image_name, std::string image_path, int room_index);
+    std::string new_image(std::string image_name, std::string image_path, SDL_Rect clip_rect, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha);
+    std::string new_image(std::string image_name, std::string image_path, SDL_Rect clip_rect);
+    std::string new_image(std::string image_name, std::string image_path, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha);
+    std::string new_image(std::string image_name, std::string image_path);
 
-    std::string new_blank_image(std::string image_name, SDL_TextureAccess access_type, int room_index, int panel_index, int x_size, int y_size, SDL_Rect clip_rect, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha);
-    std::string new_blank_image(std::string image_name, SDL_TextureAccess access_type, int room_index, int panel_index, int x_size, int y_size, SDL_Rect clip_rect);
-    std::string new_blank_image(std::string image_name, SDL_TextureAccess access_type, int room_index, int panel_index, int x_size, int y_size, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha);
-    std::string new_blank_image(std::string image_name, SDL_TextureAccess access_type, int room_index, int panel_index, int x_size, int y_size);
-    std::string new_blank_image(std::string image_name, SDL_TextureAccess access_type, int room_index, int x_size, int y_size, SDL_Rect clip_rect, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha);
-    std::string new_blank_image(std::string image_name, SDL_TextureAccess access_type, int room_index, int x_size, int y_size, SDL_Rect clip_rect);
-    std::string new_blank_image(std::string image_name, SDL_TextureAccess access_type, int room_index, int x_size, int y_size, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha);
-    std::string new_blank_image(std::string image_name, SDL_TextureAccess access_type, int room_index, int x_size, int y_size);
+    std::string new_blank_image(std::string image_name, SDL_TextureAccess access_type, int x_size, int y_size, SDL_Rect clip_rect, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha);
+    std::string new_blank_image(std::string image_name, SDL_TextureAccess access_type, int x_size, int y_size, SDL_Rect clip_rect);
+    std::string new_blank_image(std::string image_name, SDL_TextureAccess access_type, int x_size, int y_size, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha);
+    std::string new_blank_image(std::string image_name, SDL_TextureAccess access_type, int x_size, int y_size);
 
-    std::string new_text(std::string image_name, std::string font, int room_index, int panel_index, std::string text_contents, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha, bool is_wrapping, Uint32 wrap_count);
-    std::string new_text(std::string image_name, std::string font, int room_index, int panel_index, std::string text_contents, bool is_wrapping, Uint32 wrap_count);
-    std::string new_text(std::string image_name, std::string font, int room_index, std::string text_contents, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha, bool is_wrapping, Uint32 wrap_count);
-    std::string new_text(std::string image_name, std::string font, int room_index, std::string text_contents, bool is_wrapping, Uint32 wrap_count);
+    std::string new_text(std::string image_name, std::string font, std::string text_contents, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha, bool is_wrapping, Uint32 wrap_count);
+    std::string new_text(std::string image_name, std::string font, std::string text_contents, bool is_wrapping, Uint32 wrap_count);
 
     std::string copy_image(std::string image_name, std::string other_image, SDL_Rect clip_rect);
     std::string copy_image(std::string image_name, std::string other_image);
@@ -107,8 +108,11 @@ public:
     void set_point(std::string image_name, int point_index, int new_x, int new_y);
     void clear_points(std::string image_name);
 
+    ///FOR SETTING IMAGE LAYERS
+    void sort_and_repoint_images();
     int get_layer(std::string image_name);
     void set_layer(std::string image_name, int new_layer);
+    //
 
     int get_flip(std::string image_name);
     void set_flip(std::string image_name, int new_flip);
@@ -139,8 +143,6 @@ public:
     void set_pixels(std::string image_name, Uint32* pixels);
 
     void set_as_render_target(std::string image_name, int room_to_copy, int panel_to_copy);
-    void set_as_render_target(std::string image_name, int room_to_copy);
-
     //ANIMATION MANAGER
     //
     void add_animation_set_to_image(std::string image_name);
@@ -156,7 +158,7 @@ public:
 
     //BUTTON MANAGER
     //
-    std::string new_button(std::string button_name, int room_index, int panel_index, std::vector<SDL_Rect> new_rectangles);
+    std::string new_button(std::string button_name, std::vector<SDL_Rect> new_rectangles);
 
     bool get_button_active(std::string button_name);
     bool set_button_active(std::string button_name, bool active);
@@ -226,16 +228,19 @@ public:
     void add_post_render_procedure(loop_procedure new_proc);
     void remove_post_render_procedure(int element_ID);
 
-    void add_key_procedure(key_procedure new_proc, int room_to);
-    void add_key_procedure(key_procedure new_proc);
-    void remove_key_procedure(int element_ID, int room_to);
-    void remove_key_procedure(int element_ID);
+    int add_key_state_procedure(int (*new_proc)(bool), const bool play, const bool pause, const int input);
+    void remove_key_state_procedure(int element_ID);
 
-    void add_mouse_procedure(room_procedure new_proc, int room_to, int panel_to);
-    void add_mouse_procedure(room_procedure new_proc, int room_to);
-    void add_mouse_procedure(room_procedure new_proc);
-    void remove_mouse_procedure(int element_ID, int room_to, int panel_to);
-    void remove_mouse_procedure(int element_ID, int room_to);
+    int add_key_down_procedure(int (*new_proc)(bool), const bool play, const bool pause, const int input);
+    void remove_key_down_procedure(int element_ID);
+
+    int add_key_up_procedure(int (*new_proc)(bool), const bool play, const bool pause, const int input);
+    void remove_key_up_procedure(int element_ID);
+
+    int add_mouse_state_procedure(int (*new_proc)(int,int,int,int,int), const bool play, const bool pause);
+    void remove_mouse_state_procedure(int element_ID);
+
+    void add_mouse_procedure(int (*new_proc)(unsigned int), int mouse_input, const bool play, const bool pause);
     void remove_mouse_procedure(int element_ID);
 
     //RENDER
@@ -266,8 +271,14 @@ private:
     SDL_Renderer* renderer;
     unsigned int renderer_setting = SDL_RENDERER_SOFTWARE;
 
+
+    //IMAGE SOURCES
+    image_source_controller* sources = NULL;
+
     //FOR GETTING PRINTS
     bool printing;
+    void print_error();
+
 
     //FRAME CONSTANTS
     const int MAX_FPS = 60;
@@ -277,6 +288,12 @@ private:
     //
     ///ROOMS
     room_controller* rooms;
+
+    int room_index = -1;
+    room* room_point = NULL;
+
+    int panel_index = -1;
+    panel_interface* panel_point = NULL;
 
     ///POINTING MAPS FOR ROOMS
     typedef std::map<std::string, image_point*> Image_Point_Map;
@@ -288,9 +305,6 @@ private:
     typedef std::map<std::string, image_source_point*> Image_Source_Point_Map;
     Image_Source_Point_Map image_sources;
     image_source_point* get_image_source_point(std::string source);
-
-    ///FOR SETTING IMAGE LAYERS
-    void sort_and_repoint_images(int room_index, int panel_index, room* room_point, panel_interface* panel_point);
 
     ///BUTTONS
     std::map<std::string, image_point*> buttons; //IT'S CALLED IMAGE POINT, BUT FUNCTIONALLY, IT CAN BE USED FOR BUTTONS AS THEY POINT TO BUTTONS
@@ -326,9 +340,20 @@ private:
     void animation_update();
     void post_render_update();
     //
-    void event_key_loop();
+    ///KEY UPDATES AND QUEUE
     //
-    void event_mouse_loop();
+    void key_state_procedures_update(const Uint8* key_states);
+
+    void add_to_key_down_queue(int key_code, bool repeat);
+    void key_down_procedures_update();
+
+    void add_to_key_up_queue(int key_code, bool repeat);
+    void key_up_procedures_update();
+    //
+    ///MOUSE UPDATES
+    //
+    void mouse_state_update();
+    void event_mouse_update();
 
     //QUITTING APPLICATION
     bool quit;
@@ -367,9 +392,26 @@ private:
     int max_post_render = 50;
 
     //CONTROL
-    std::vector<key_procedure> key_procedures;
-    int max_key_responses = 50;
-    std::vector<room_procedure> mouse_procedures;
+    std::vector<key_state_procedure> key_state_procedures = std::vector<key_state_procedure>();
+    int total_key_state_procs = 0;
+    int max_key_state_responses = 50;
+
+    std::queue<key_push> key_down_queue;
+    std::vector<key_procedure> key_down_procedures = std::vector<key_procedure>();
+    int total_key_down_procs = 0;
+    int max_key_down_responses = 50;
+
+    std::queue<key_push> key_up_queue;
+    std::vector<key_procedure> key_up_procedures = std::vector<key_procedure>();
+    int total_key_up_procs = 0;
+    int max_key_up_responses = 50;
+
+    std::vector<room_state_procedure> mouse_state_procedures = std::vector<room_state_procedure>();
+    int total_room_state_procs = 0;
+    int max_room_state_responses = 50;
+
+    std::vector<room_procedure> mouse_procedures = std::vector<room_procedure>();
+    int total_mouse_procs = 0;
     int max_mouse_responses = 50;
 };
 

@@ -57,7 +57,7 @@ bool visual_media::render(int x, int y, SDL_Rect render_clip, double rotation, S
     if (renderer == NULL)
         render_flag = false;
     else
-        if (SDL_RenderCopyEx(renderer,texture,&render_clip,&render_spot,rotation,NULL,flip)){
+        if (SDL_RenderCopyEx(renderer,texture,&render_clip,&render_spot,rotation,NULL,flip) != 0){
             render_flag = false;
         }
 
@@ -77,6 +77,7 @@ bool visual_media::load_as_image(const char image_path[]){
 
         if (first_image == NULL){
             load_flag = false;
+            std::cout << "IMG Load failed to load image path" << std::endl;
         } else {
             //CONVERT IMAGE
             //
@@ -84,6 +85,7 @@ bool visual_media::load_as_image(const char image_path[]){
 
             if (second_image == NULL){
                 load_flag = false;
+                std::cout << "Failed to convert image to format!" << std::endl;
             } else {
                 //SETTING SIZE
                 x_size = second_image->w;
@@ -93,6 +95,7 @@ bool visual_media::load_as_image(const char image_path[]){
 
                 if (texture == NULL){
                     load_flag = false;
+                    std::cout << "Failed to create texture" << std::endl;
                 } else {
                     //COPY SURFACE ONTO TEXTURE
                     set_locked(true);
@@ -106,6 +109,7 @@ bool visual_media::load_as_image(const char image_path[]){
         }
 
     } else {
+        std::cout << "Renderer is not present!" << std::endl;
         load_flag = false;
     }
 
@@ -260,58 +264,6 @@ bool visual_media::set_alpha_mod(Uint8 bonus_a){
 
     return (SDL_SetTextureAlphaMod(texture,(Uint8)calc_a) == 0);
 }
-
-Uint8 visual_media::get_hue(){
-    return hue;
-}
-
-void visual_media::set_hue(int new_hue){
-    if (new_hue > 239)
-        new_hue = 239;
-    else if (new_hue < 0)
-        //KEEP ADDING MAX UNTIL IN RANGE
-        while (new_hue < 0)
-            new_hue+= 239;
-
-    hue = new_hue;
-
-    hsl_to_rgb();
-}
-
-Uint8 visual_media::get_saturation(){
-    return saturation;
-}
-
-void visual_media::set_saturation(int new_sat){
-    if (new_sat > 240)
-        new_sat = 240;
-    else if (new_sat < 0)
-        //KEEP ADDING MAX UNTIL IN RANGE
-        while (new_sat < 0)
-            new_sat+= 240;
-
-    saturation = new_sat;
-
-    hsl_to_rgb();
-}
-
-Uint8 visual_media::get_luminosity(){
-    return luminosity;
-}
-
-void visual_media::set_luminosity(int new_lum){
-    if (new_lum > 240)
-        new_lum = 240;
-    else if (new_lum < 0)
-        //KEEP ADDING MAX UNTIL IN RANGE
-        while (new_lum < 0)
-            new_lum+= 240;
-
-    luminosity = new_lum;
-
-    hsl_to_rgb();
-}
-
 
 bool visual_media::set_blend_mode(SDL_BlendMode blend_mode){
     return (SDL_SetTextureBlendMode(texture, blend_mode) == 0);
